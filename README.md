@@ -1,3 +1,6 @@
+
+本博客使用ReadTheDocs和MkDocs来构建，如果希望参与，在fork后在codespaces中打开，然后运行`run-edit.sh`即可实时预览。
+
 Example: Basic MkDocs project for Read the Docs
 ===============================================
 
