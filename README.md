@@ -1,5 +1,5 @@
 
-本博客使用ReadTheDocs和MkDocs来构建，如果希望参与，在fork后在codespaces中打开，然后运行`run-edit.sh`即可实时预览。
+本博客使用ReadTheDocs和MkDocs来构建，如果希望参与，在fork后在codespaces中打开，然后运行`run-edit.sh`即可实时预览。（如果没有自动转发端口，可以直接点击命令行的地址`127.0.0.1:8000`来浏览。）
 
 URL: https://techblog.readthedocs.io/zh/latest/
 
