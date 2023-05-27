@@ -3,20 +3,6 @@
 
 URL: https://techblog.readthedocs.io/zh/latest/
 
-Todo:
-
-+ [ ] 通用知识
-    + [x] 什么是CPU
-    + [x] CPU安全包含什么
-    + [ ] 安全通用逻辑
-      + [ ] 威胁模型与攻击向量
-      + [ ] 成本权衡
-      + [ ] 防御思路：修改规则，监控和阻止等
-    + [ ] 密码学工具
-+ [ ] 计算域内安全
-+ [ ] 计算域间安全
-+ [ ] 侧信道与故障注入安全
-+ [ ] 其他特殊安全
 
 
 Example: Basic MkDocs project for Read the Docs
