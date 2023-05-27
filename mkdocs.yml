@@ -1,7 +1,10 @@
 site_name: Readm's Blog
 theme:
+  language: zh
   name: readthedocs
   highlightjs: true
+  navigation_depth: 2
+
 plugins:
   - search
   - mkdocstrings:
