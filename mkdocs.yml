@@ -1,9 +1,13 @@
 site_name: Readm's Blog
 theme:
-  language: zh
+  locale: zh_CN
   name: readthedocs
   highlightjs: true
-  navigation_depth: 2
+  navigation_depth: 4
+  collapse_navigation: True
+  title_only: True
+  analytics:
+        gtag: G-ET7BC0JY44
 
 plugins:
   - search
