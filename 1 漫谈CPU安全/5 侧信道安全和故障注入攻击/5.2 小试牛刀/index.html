@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh_Hans_CN" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>小试牛刀 - Readm's Blog</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+        <link href="../../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "\u5c0f\u8bd5\u725b\u5200";
+        var mkdocs_page_input_path = "1 \u6f2b\u8c08CPU\u5b89\u5168/5 \u4fa7\u4fe1\u9053\u5b89\u5168\u548c\u6545\u969c\u6ce8\u5165\u653b\u51fb/5.2 \u5c0f\u8bd5\u725b\u5200.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <script src="../../../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-ET7BC0JY44"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-ET7BC0JY44');
+      </script>
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> Readm's Blog
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="搜索文档" title="在此输入需要搜索的内容" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航栏">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../About/">About</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">1 漫谈CPU安全</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="#">0 引言</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../0%20%E5%BC%95%E8%A8%80/0%20%E5%BC%95%E8%A8%80/">0 引言</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">1 通用知识</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../1%20%E9%80%9A%E7%94%A8%E7%9F%A5%E8%AF%86/1.1%20%E4%BB%80%E4%B9%88%E6%98%AFCPU/">1.1 什么是CPU</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../1%20%E9%80%9A%E7%94%A8%E7%9F%A5%E8%AF%86/1.2%20CPU%E5%AE%89%E5%85%A8%E5%8C%85%E5%90%AB%E4%BB%80%E4%B9%88/">1.2 CPU安全包含什么</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../1%20%E9%80%9A%E7%94%A8%E7%9F%A5%E8%AF%86/1.3%20%E5%A8%81%E8%83%81%E6%A8%A1%E5%9E%8B%E5%92%8C%E6%94%BB%E5%87%BB%E5%90%91%E9%87%8F/">1.3 威胁模型和攻击向量</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">2 计算域内安全</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../2%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E5%86%85%E5%AE%89%E5%85%A8/2.1%20%E4%BB%8E%E6%8E%A7%E5%88%B6%E6%B5%81%E5%8A%AB%E6%8C%81%E6%94%BB%E5%87%BB%E8%AE%B2%E8%B5%B7/">2.1 从控制流劫持攻击讲起</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../2%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E5%86%85%E5%AE%89%E5%85%A8/2.2%20%E5%8C%BA%E5%88%86%E6%95%B0%E6%8D%AE%E4%B8%8E%E4%BB%A3%E7%A0%81/">2.2 区分数据与代码</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../2%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E5%86%85%E5%AE%89%E5%85%A8/2.3%20%E4%BB%A3%E7%A0%81%E5%A4%8D%E7%94%A8%E6%94%BB%E5%87%BB/">2.3 代码复用攻击</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../2%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E5%86%85%E5%AE%89%E5%85%A8/2.4%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E5%86%85%E5%AE%89%E5%85%A8%E9%98%B2%E5%BE%A1%E6%8A%80%E6%9C%AF/">2.4 计算域内安全防御技术</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">3 计算域间安全</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../3%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E9%97%B4%E5%AE%89%E5%85%A8/3.1%20%E4%BB%8E%E5%8D%95%E7%BA%AF%E7%9A%84%22%E8%AE%A1%E7%AE%97%E6%9C%BA%22%E5%BC%80%E5%A7%8B/">3.1 从单纯的"计算机"开始</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">4 可信安全和故障注入安全</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../4%20%E5%8F%AF%E4%BF%A1%E5%AE%89%E5%85%A8%E5%92%8C%E6%95%85%E9%9A%9C%E6%B3%A8%E5%85%A5%E5%AE%89%E5%85%A8/4.1%20%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E6%9E%84%E5%BB%BA%E5%8F%AF%E4%BF%A1%E8%AE%A1%E7%AE%97/">4.1 从零开始构建可信计算</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">5 侧信道安全和故障注入攻击</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../5.1%20%E4%BB%8E%22%E4%BE%A7%22%E4%BF%A1%E9%81%93%E8%AE%B2%E8%B5%B7/">从"侧"信道讲起</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="./">小试牛刀</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#_2">胡闹厨房</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_3">一瓶管理员专属的酱油</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#meltdown">回顾真正的Meltdown</a>
+    </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">8 杂谈</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../8%20%E6%9D%82%E8%B0%88/8.1%20%E5%A6%82%E4%BD%95%E9%87%8F%E5%8C%96CPU%E5%AE%89%E5%85%A8/">8.1 如何量化CPU安全</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">9 反馈与合作</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../9%20%E5%8F%8D%E9%A6%88%E4%B8%8E%E5%90%88%E4%BD%9C/%E5%8F%8D%E9%A6%88%E5%92%8C%E5%90%88%E4%BD%9C/">反馈与合作</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">2 杂谈</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../2%20%E6%9D%82%E8%B0%88/%E9%9D%A2%E5%90%91%E4%BA%BA%E5%81%9A%E6%8A%80%E6%9C%AF/">以人为本做技术</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">3 Old Blogs (before 2020)</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="#">Others</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/Others/2016-09-06-prompt-in-readline/">在readline中使用颜色prompt导致显示bug</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/Others/2016-09-23-syscall/">Linux的虚拟系统调用加速</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/Others/2018-04-11-reserve-register/">如何在编译器中保留特定寄存器</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/Others/2020-02-03-huffman/">Huffman树的推广</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">Security</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/Security/2016-09-09-aslr-linux/">Linux下ASLR概述</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/Security/2016-11-09-cet-shadow_stacks/">Intel官方手册：CET技术预览-影子栈</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/Security/2020-07-27-zipper/">Zipper Stack工作介绍和反思总结</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">Riscv</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/riscv/2018-02-18-riscv-addins/">如何在RISC-V中添加一个指令</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/riscv/2018-02-18-riscv/">RISC-V 技术概览</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/riscv/2018-02-19-rocket-0/">Rocket Core源代码笔记——入门</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/riscv/2018-03-15-riscv-bypass/">Rocket Core源代码笔记——旁路</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/riscv/2018-11-19-rocket-scoreboard/">Rocket Core源代码笔记——Scoreboard</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/riscv/2018-11-20-rocket-abbrs/">Rocket Core源代码笔记——缩写</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/riscv/2018-11-21-riscv-control-flow/">Rocket Core源代码笔记——控制流</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="移动导航栏">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">Readm's Blog</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" alt="文档"></a> &raquo;</li>
+          <li>1 漫谈CPU安全 &raquo;</li>
+          <li>5 侧信道安全和故障注入攻击 &raquo;</li><li>小试牛刀</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="_1">小试牛刀</h1>
+<p>在开始讨论侧信道的影响范围和防御理论前，我们还是从抽象返回具象，先来再次做一次云黑客，搞他一次侧信道攻击。（这或许是全网最简单易懂的侧信道攻击讲解了<img alt="Alt text" src="../1295AAD4.png" />）</p>
+<p><img alt="干他一炮" src="../../static/%E5%B9%B2%E4%BB%96%E4%B8%80%E7%82%AE.jpg" /></p>
+<h2 id="_2">胡闹厨房</h2>
+<p>还记得我们在最开始通用知识中的比喻嘛？一个CPU硬件就如同一个厨房，但是一个厨房可能会被不同的人使用。因此，其实一个厨房所配套的仓库并不能都让所有厨师使用，而是不同的仓库归属不同的厨师，有些共享，有些不共享，甚至有些仓库只有管理员才能使用。</p>
+<p>另外一点，CPU的流水线已经是非常简单的简化了，目前的多发射乱序商业CPU，可以看做是多个厨师共同来共同烹饪。没错，如果你玩过胡闹厨房：</p>
+<p><img alt="胡闹厨房" src="../../static/%E8%83%A1%E9%97%B9%E5%8E%A8%E6%88%BF.webp" /></p>
+<p>雇佣多个厨师的原因也非常简单：因为我们需要更加快速的CPU。这里一句话解释一下目前商用CPU的技术：</p>
+<ul>
+<li>多发射：服务员接受订单时，可以一起点很多个菜，送到后厨制作。（以前只能够一次点一个菜）</li>
+<li>乱序执行：厨师们不会完全按照点单顺序来制作和上菜，如果某个素材还在仓库，或者有的工序复杂，可以先做后面的订单。</li>
+<li>投机执行：厨师们会在接受订单前，提前备菜。比如，如果顾客点了麻辣火锅，厨师们就是提前把可乐准备好了，即使前面的订单中没有可乐，但是顾客后面可能会去点。如果客户没有点，那就扔进垃圾箱。</li>
+</ul>
+<p>可以想象，有了这些机制之后，CPU这家小饭馆的服务能力大增，生意十分红火。就像你和你的小伙伴们开的胡闹厨房，大家疯狂工作，效率极高。只是偶尔也会做错一些菜，可能订单上没有。那又如何，扔掉了就好嘛~</p>
+<p>这些复杂的机制，就是CPU中的“微架构”设计，这些设计是软件“几乎”不可见的。而可见的设计，就只剩下软件（顾客）负责点单，然后吃饭，然后再点单。只要端上来的菜符合我点的订单（架构层正确），就不需要在乎后厨如何。</p>
+<h2 id="_3">一瓶管理员专属的酱油</h2>
+<p>我们先用胡闹厨房来讲述影响最大的CPU侧信道漏洞 <a href="https://meltdownattack.com/">Meltdown</a>。</p>
+<p>假设，管理员有一个仓库，本来是我们无法看到仓库里面都有些什么东西的。用计算机的语言来说，就是有一个内存地址，我们本来没有权限。</p>
+<p>用伪代码来讲就是：</p>
+<p><code>r1 = &lt;read a kernel address&gt;</code></p>
+<p>用“厨房代码”来讲就是</p>
+<p><code>把某个仓库某个货架上的东西拿一瓶酱油回来用，（但是仓库为管理员专用）。</code></p>
+<p>那么正常来讲，CPU应该按照序列做出以下操作：</p>
+<ol>
+<li>检查地址是否有权限</li>
+<li>如果有权限，去这一地址取到值，放在厨房内备用</li>
+<li>如果没有权限，报错</li>
+</ol>
+<p>在厨房代码中就是：</p>
+<ol>
+<li>派一个厨师去查查这个仓库是不是管理员允许我们用的</li>
+<li>如果这个厨师说，这是管理员允许的，派另一个厨师去这个仓库直接那到一瓶酱油</li>
+<li>如果这个厨师说，这不是管理员允许的，那么不再派厨师出去，直接告诉后厨这酱油拿不到</li>
+</ol>
+<p>在现代CPU中，为了性能考虑，步骤1和步骤2经常是并行执行的。这类似于：</p>
+<ol>
+<li>派一个厨师去查查这个仓库是不是管理员允许我们用的</li>
+<li>派另一个厨师去这个仓库直接那到一瓶酱油，先用着</li>
+<li>等到第一个厨师回来，如果管理员允许，无事发生</li>
+<li>如果管理员不允许，在告诉后厨用这瓶酱油做过的菜都倒掉，假装没有用过</li>
+</ol>
+<p>因为软件与硬件的协议只在订单和最后的菜品上体现，也就是专业上架构层可见，那么偷偷用过再倒掉的事情软件是永远无法得知的。一切安好，直到……</p>
+<p>突然有一个人突发奇想，我能不能得知这瓶酱油的状态呢？虽然我没有权限直接使用，但是它毕竟被我拿过来过。</p>
+<p>首先，最直接的想法，我们在厨房就可以看到呀？但是这是不切实际的，因为“厨房”是CPU的微架构，是软件无法读取的，也就是说，厨房内发生的事情，攻击者是看不到的，他只能看到送菜的成品。而这个偷偷用过酱油的菜已经被倒掉了。技术上讲，这些CPU内部虽然违反了权限获取的信息，也无非只是在微架构中停留了，软件层面没法直接观测到。</p>
+<p>这时候，就有请我们的“侧”信道出场了。对于攻击者来说，他希望具体知道这瓶酱油的状态：它是空的还是满的？对应于实际内存中的值到底是0还是255。因此，我们需要构造一个信道，他有一个可被观察的量C，它与这个值有一定的函数关系C=f(I)。其中I是内存的值（酱油瓶的空满）。这个C如何构造呢？既然软件的值最终是一样的，做错的菜品不会被从后厨送出来，但是时间上，还是能构造某种差异的。</p>
+<p>我们先用比喻来说，假设，我们的指令后面增加一条：<code>用这瓶酱油做很多红烧肉，每一盘用1g酱油，一块红烧肉</code>。那么厨房的状态会变成：</p>
+<ol>
+<li>派一个厨师去查查这个仓库是不是管理员允许我们用的</li>
+<li>派另一个厨师去这个仓库直接那到一瓶酱油，先用着</li>
+<li>用这瓶酱油做很多红烧肉，每一盘用1g酱油，一块红烧肉</li>
+<li>因为这瓶酱油还有5g，所以做出了5盘红烧肉</li>
+<li>第一个厨师回来说管理员不允许，在告诉后厨用这瓶酱油做过的红烧肉都倒掉，假装没有用过</li>
+</ol>
+<p>此时你会发现，无论这瓶管理员的酱油到底有几克，没有一盘红烧肉被从送菜口送出来。此时我们在送菜口盯着也无法得知酱油到底有几克。但是！如果此时，你在点100盘小炒肉，并且材料都是管理员允许的，那么它上菜的速度就与之前酱油的数量有关了。因为如果你酱油越少，被你扔掉的红烧肉就越少，那么下次做小炒肉的时候，你的库存就更加充足！</p>
+<p>我们假设，最开始厨房中有100份猪肉，每次都是用光了才去拿下一次。那么如果之前用错了酱油做错了N盘红烧肉，就会消耗N份猪肉，那么下次点单100分小炒肉就会先端上来100-N份，然后后厨么有猪肉了，又去取一次100份，再做好N盘端上来。这个时间断点，我们就可以反推出N的值了。</p>
+<h2 id="meltdown">回顾真正的Meltdown</h2>
+<p>显然比喻对于精确的技术来说是不够的，在大概感受一下思路之后，我们重新用纯技术的语言回顾一下Meltdown的攻击过程。你需要掌握的概念：</p>
+<ul>
+<li>指针</li>
+<li>cache系统</li>
+</ul>
+<p>一段简单触发微架构越权访问非常简单，仅需要：</p>
+<pre><code>ld r1, [r2]  # r2=kernel address (ka)，假设该地址存储的值为3
+</code></pre>
+<p>此时 r1 寄存器中暂时有了 r2寄存器指向的内核地址的值。但是这条指令会因为地址非法，r1的值会被偷偷被微架构恢复回去。也就是说，假如：</p>
+<pre><code>mv r1, 0x1
+ld r1, [r2]  # r2=kernel address (ka)，假设该地址存储的值为3
+-&gt; trigger exception
+any way read r1
+</code></pre>
+<p>虽然在第二行执行的时候，硬件中某个时刻r1值确实为3，但是触发异常之后，无论怎么读取，软件可见的r1的值还是0x1。
+因此我们需要让这个临时的3的值影响点什么我们方便测量的，此时，我们使用cache机制:</p>
+<pre><code>ld r1, [r2]      # r2 = ka (kernel address)，假设该地址存储的值为3
+add r3, r1, r3   # r3 = ap (array ptr), 其指向的内存有权限，add之后指向了ap+3的位置
+ld r4, [r3]      # r4无所谓，只要load了这个ap+3这个位置就好
+</code></pre>
+<p>此时，如果你熟悉cache系统，ap+3这个地址的值取回来会被放到cache中，并且会替换掉另一个cache line。替换掉了哪个cache line完全取决于ap+3这个地址的值。虽然，第一条指令就会触发exception，但是，后面两条指令对于cache line的改动已经发生了。</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>对于Cache系统，简单来讲，就是在CPU附近放一个小的Memory，如果访问的位置恰好在这个小Memory中，就不需要去远端的Memory中去。其中有n个槽位，每个槽位的大小叫做cache line。最简单的对应方式就是一个地址为addr的内存，放在第 addr/(cache line size) % n的槽位上，每次新来的替换旧的。我们以此为例。</p>
+<p>因为Cache内容是一个微架构内容，因此他的内容并不对软件可见，因此也不在CPU错误投机回滚的范围内。</p>
+</div>
+<p>所以，其实<code>ld r4, [r3]</code>这条指令会改变这个cache的状态，并且这个cache的状态并不会因为投机行为回滚。那么我们现在就需要观察这个变化，如何来做呢？我们需要主动先控制这个cache，先清空一下。然后看看这个<code>ld r4, [r3]</code>到底把谁拿回来了。</p>
+<p>CPU中有cache清空的指令，(即使没有，我们也可以填满其他跟ap这个地址无关的内容)，准备完成后，cache line中的状态是：
+<img alt="" src="../../static/5.2%20cache%20init.png" /></p>
+<pre><code># 攻击
+ld r1, [r5]      # r5 = ap 
+ld r1, [r2]      # r2 = ka (kernel address)，假设该地址存储的值为3
+add r3, r1, r3   # r3 = ap (array ptr), 其指向的内存有权限，add之后指向了ap+3的位置
+ld r4, [r3]      # r4无所谓，只要load了这个ap+3这个位置就好
+</code></pre>
+<p>因为ap+3这个地址被load过，CPU觉得你可能一会还会用，就先放到手边了。
+<img alt="" src="../../static/5.2%20cache%20after.png" /></p>
+<pre><code># 探测cache状态
+mv r5, ap        # 从ap开始扫描
+计时开始
+ld r1, [r5]      # 测量 load ap 时间
+计时结束
+add r5, 1, r5    # +1
+
+计时开始
+ld r1, [r5]      # 测量 load ap + 1 时间
+计时结束
+add r5, 1, r5    # +1
+
+计时开始
+ld r1, [r5]      # 测量 load ap + 2 时间
+计时结束
+...
+
+</code></pre>
+<p>此时，我们会发现，明显load ap + 3的时间更快，因为它在cache line中，而其他地址都还在ddr中。此时，我们就得知了，ka地址内的值，应该是3。</p>
+<p>至此，我们就完成了侧信道所有的必须步骤。可见，攻击的关键点有两点：</p>
+<ol>
+<li>一个投机的访问拿回来一个并没有权限的值</li>
+<li>将这个临时的，软件不可见的值转换到一个可观测的侧信道上</li>
+</ol>
+<p>第一点，是现代CPU的设计基础，现在的高性能CPU一定需要投机执行，必然会在检查权限的同时读取数据。（实际上，检查权限可能是一个非常非常耗时的行为）第二点，目前我们使用的是最常见的cache侧信道，而cache侧信道主要的观测手段就是访问不同的地址的耗时不同，因此在案例中，我们将无权访问的值转换成一个地址并访问，来改变cache状态。</p>
+<p>如果你希望亲手实践这种攻击，可以参考其他介绍文章了，你需要关注很多额外的问题。虽然这些问题与攻击本质无关，但是为了攻击的完成你必须了解和考虑：</p>
+<ol>
+<li>现代CPU的Cache组织结构和替换算法十分复杂，因此你需要在控制cache时小心是否符合预期</li>
+<li>次数测量时间的精度要求比较高，你需要合理的，指令级别（cycle级别）的计时方案</li>
+<li>cache的粒度为一个cache line，典型值是64 byte，在我们的简化中没有考虑</li>
+<li>你需要让权限检查的完成时间足够慢，而投机拿取值足够快，因此你需要一些cache miss的指针嵌套来拖慢地址权限的计算，同时，你需要投机拿到的值非常快，最好就在最近的cache中。</li>
+<li>你要防止CPU对你的攻击程序进行一些意料外的预测和投机行为，这些行为非常容易干扰结果
+等等</li>
+</ol>
+<p>我们先假定大家都看懂了这个攻击原理（笑。我们后面介绍如何进行各种变种，组合，以及如何去防御这些攻击。</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="页脚导航">
+        <a href="../5.1%20%E4%BB%8E%22%E4%BE%A7%22%E4%BF%A1%E9%81%93%E8%AE%B2%E8%B5%B7/" class="btn btn-neutral float-left" title="从"侧"信道讲起"><span class="icon icon-circle-arrow-left"></span> 上一张</a>
+        <a href="../../8%20%E6%9D%82%E8%B0%88/8.1%20%E5%A6%82%E4%BD%95%E9%87%8F%E5%8C%96CPU%E5%AE%89%E5%85%A8/" class="btn btn-neutral float-right" title="8.1 如何量化CPU安全">下一张 <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  用<a href="https://www.mkdocs.org/">MkDocs</a>构建，使用<a href="https://readthedocs.org">Read the Docs</a>提供的<a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>。
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="版本">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../5.1%20%E4%BB%8E%22%E4%BE%A7%22%E4%BF%A1%E9%81%93%E8%AE%B2%E8%B5%B7/" style="color: #fcfcfc">&laquo; 上一张</a></span>
+    
+    
+      <span><a href="../../8%20%E6%9D%82%E8%B0%88/8.1%20%E5%A6%82%E4%BD%95%E9%87%8F%E5%8C%96CPU%E5%AE%89%E5%85%A8/" style="color: #fcfcfc">下一张 &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '../../..';</script>
+    <script src="../../../js/theme_extra.js" defer></script>
+    <script src="../../../js/theme.js" defer></script>
+      <script src="../../../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh_Hans_CN" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>8.1 如何量化CPU安全 - Readm's Blog</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+        <link href="../../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "8.1 \u5982\u4f55\u91cf\u5316CPU\u5b89\u5168";
+        var mkdocs_page_input_path = "1 \u6f2b\u8c08CPU\u5b89\u5168/8 \u6742\u8c08/8.1 \u5982\u4f55\u91cf\u5316CPU\u5b89\u5168.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <script src="../../../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-ET7BC0JY44"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-ET7BC0JY44');
+      </script>
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> Readm's Blog
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="搜索文档" title="在此输入需要搜索的内容" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航栏">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../About/">About</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">1 漫谈CPU安全</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="#">0 引言</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../0%20%E5%BC%95%E8%A8%80/0%20%E5%BC%95%E8%A8%80/">0 引言</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">1 通用知识</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../1%20%E9%80%9A%E7%94%A8%E7%9F%A5%E8%AF%86/1.1%20%E4%BB%80%E4%B9%88%E6%98%AFCPU/">1.1 什么是CPU</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../1%20%E9%80%9A%E7%94%A8%E7%9F%A5%E8%AF%86/1.2%20CPU%E5%AE%89%E5%85%A8%E5%8C%85%E5%90%AB%E4%BB%80%E4%B9%88/">1.2 CPU安全包含什么</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../1%20%E9%80%9A%E7%94%A8%E7%9F%A5%E8%AF%86/1.3%20%E5%A8%81%E8%83%81%E6%A8%A1%E5%9E%8B%E5%92%8C%E6%94%BB%E5%87%BB%E5%90%91%E9%87%8F/">1.3 威胁模型和攻击向量</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">2 计算域内安全</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../2%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E5%86%85%E5%AE%89%E5%85%A8/2.1%20%E4%BB%8E%E6%8E%A7%E5%88%B6%E6%B5%81%E5%8A%AB%E6%8C%81%E6%94%BB%E5%87%BB%E8%AE%B2%E8%B5%B7/">2.1 从控制流劫持攻击讲起</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../2%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E5%86%85%E5%AE%89%E5%85%A8/2.2%20%E5%8C%BA%E5%88%86%E6%95%B0%E6%8D%AE%E4%B8%8E%E4%BB%A3%E7%A0%81/">2.2 区分数据与代码</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../2%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E5%86%85%E5%AE%89%E5%85%A8/2.3%20%E4%BB%A3%E7%A0%81%E5%A4%8D%E7%94%A8%E6%94%BB%E5%87%BB/">2.3 代码复用攻击</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../2%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E5%86%85%E5%AE%89%E5%85%A8/2.4%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E5%86%85%E5%AE%89%E5%85%A8%E9%98%B2%E5%BE%A1%E6%8A%80%E6%9C%AF/">2.4 计算域内安全防御技术</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">3 计算域间安全</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../3%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E9%97%B4%E5%AE%89%E5%85%A8/3.1%20%E4%BB%8E%E5%8D%95%E7%BA%AF%E7%9A%84%22%E8%AE%A1%E7%AE%97%E6%9C%BA%22%E5%BC%80%E5%A7%8B/">3.1 从单纯的"计算机"开始</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">4 可信安全和故障注入安全</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../4%20%E5%8F%AF%E4%BF%A1%E5%AE%89%E5%85%A8%E5%92%8C%E6%95%85%E9%9A%9C%E6%B3%A8%E5%85%A5%E5%AE%89%E5%85%A8/4.1%20%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E6%9E%84%E5%BB%BA%E5%8F%AF%E4%BF%A1%E8%AE%A1%E7%AE%97/">4.1 从零开始构建可信计算</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">5 侧信道安全和故障注入攻击</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../5%20%E4%BE%A7%E4%BF%A1%E9%81%93%E5%AE%89%E5%85%A8%E5%92%8C%E6%95%85%E9%9A%9C%E6%B3%A8%E5%85%A5%E6%94%BB%E5%87%BB/5.1%20%E4%BB%8E%22%E4%BE%A7%22%E4%BF%A1%E9%81%93%E8%AE%B2%E8%B5%B7/">从"侧"信道讲起</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../5%20%E4%BE%A7%E4%BF%A1%E9%81%93%E5%AE%89%E5%85%A8%E5%92%8C%E6%95%85%E9%9A%9C%E6%B3%A8%E5%85%A5%E6%94%BB%E5%87%BB/5.2%20%E5%B0%8F%E8%AF%95%E7%89%9B%E5%88%80/">小试牛刀</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">8 杂谈</a>
+    <ul class="current">
+                <li class="toctree-l2 current"><a class="reference internal current" href="./">8.1 如何量化CPU安全</a>
+    <ul class="current">
+    </ul>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">9 反馈与合作</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../9%20%E5%8F%8D%E9%A6%88%E4%B8%8E%E5%90%88%E4%BD%9C/%E5%8F%8D%E9%A6%88%E5%92%8C%E5%90%88%E4%BD%9C/">反馈与合作</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">2 杂谈</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../2%20%E6%9D%82%E8%B0%88/%E9%9D%A2%E5%90%91%E4%BA%BA%E5%81%9A%E6%8A%80%E6%9C%AF/">以人为本做技术</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">3 Old Blogs (before 2020)</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="#">Others</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/Others/2016-09-06-prompt-in-readline/">在readline中使用颜色prompt导致显示bug</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/Others/2016-09-23-syscall/">Linux的虚拟系统调用加速</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/Others/2018-04-11-reserve-register/">如何在编译器中保留特定寄存器</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/Others/2020-02-03-huffman/">Huffman树的推广</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">Security</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/Security/2016-09-09-aslr-linux/">Linux下ASLR概述</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/Security/2016-11-09-cet-shadow_stacks/">Intel官方手册：CET技术预览-影子栈</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/Security/2020-07-27-zipper/">Zipper Stack工作介绍和反思总结</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">Riscv</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/riscv/2018-02-18-riscv-addins/">如何在RISC-V中添加一个指令</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/riscv/2018-02-18-riscv/">RISC-V 技术概览</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/riscv/2018-02-19-rocket-0/">Rocket Core源代码笔记——入门</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/riscv/2018-03-15-riscv-bypass/">Rocket Core源代码笔记——旁路</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/riscv/2018-11-19-rocket-scoreboard/">Rocket Core源代码笔记——Scoreboard</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/riscv/2018-11-20-rocket-abbrs/">Rocket Core源代码笔记——缩写</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/riscv/2018-11-21-riscv-control-flow/">Rocket Core源代码笔记——控制流</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="移动导航栏">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">Readm's Blog</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" alt="文档"></a> &raquo;</li>
+          <li>1 漫谈CPU安全 &raquo;</li>
+          <li>8 杂谈 &raquo;</li><li>8.1 如何量化CPU安全</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="81-cpu">8.1 如何量化CPU安全</h1>
+<p>太长不看版：<strong>做梦</strong></p>
+<p>曾经有无数的人希望能够将安全问题量化，甚至有些人正在这个方向上付诸实践。但恕笔者直言，这是及其愚蠢的。我们首先naive地思考如何量化呢？
+例如我们如何量化性能或者功耗：</p>
+<ol>
+<li>首先，我们需要选择一个"有代表性"的benchmark，例如SPEC、GKB等等</li>
+<li>然后，我们根据benchmark的不同case的结果，做加权平均或者某种类似的平均</li>
+<li>最终得出一个数值，这个数值代表了<strong>在有代表性的场景中，该CPU/SoC的典型功耗/性能</strong></li>
+</ol>
+<p>实际上我们稍微做一个比喻就可以知道为什么量化安全是荒谬的：</p>
+<p>你当然可以通过计算一个人的百米跑，马拉松，引体向上等等"有代表性"的项目，得出某个分数，代表一个人的<strong>运动能力</strong>。但是你能够通过给各个器官的病变程度打个分，得出某个分数，来代表一个人的<strong>健康分数</strong>么？</p>
+<p>很显然，这种算法你当然可以设计，例如用各种医学指标，例如血氧，心率，各种检测指标来设计出一个最终分数。但是，它有意义么？
+假设一个人其他指标都正常，但是突然心率变成了0（嘎了），心率的比重是多少？10%？20%？那么他还能得80分 60分啊，好像很健康？你能对着一个猝死的人说：哥们别怕，你的健康程度还有80分哦～</p>
+<p>也就是说，你当然可以设计某种类似于加权平均的方式来将一个领域的方方面面的评价reduce到一个归一化的数值上。但是，它没有任何意义，因为在这个数值上的偏序不能够代表你整体的好坏。这是因为安全方向上的逻辑并不是等价的，并且每个层级下的子问题间也不是等价的。因此你只能做一定方向上的分类、分级，而永远不可能用一个数值来概括"安全性"。</p>
+<p>当然，有人可能会抬杠：既然平均不行，我们可以做更复杂的算法啊，比如一个人的心率必须大于30才能记分，否则就是总分为0。确实，我们可以通过非"加权平均"的非线性的算法来做另一个分数。但是还是有问题：</p>
+<ul>
+<li>安全的每个方向内都需要一个定制化的非线性算法，如何达成一致？<ul>
+<li>例如不同的漏洞的评分标准都不一样，你认为这写漏洞在你的评价体系内到底采纳哪一种？</li>
+<li>例如不同的侧信道的难度不同，你如何界定他们之间的对比关系是如何的？</li>
+</ul>
+</li>
+<li>不同的安全场景下的安全需求也不同，而CPU是为不同场景服务的，也就是说它某些情况下不可接受的安全问题可能在另一个场景下完全不care。</li>
+<li>上述两个问题交叉在一起，又会产生茫茫多不同的标准（不同场景下，不同方向下的不同指标以及非线性算法）</li>
+</ul>
+<p>理论上当然也是可行的，但是别忘了你量化的初衷是什么？是懒！哦不，是希望用一个数值或者很简单的表现方式来描述CPU的安全的整体属性，用来比较或者作为某种指标、标准。（其实还是懒，因为我们没有足够的精力去打开里面每个概念，而希望只看一个数字/标准就解决问题）你如果这么一搞，还让人怎么懒？</p>
+<p>想一想医学和其他方向上的逻辑不通就完全能理解这个区别了，医学你只能看你心肺功能如何，肝功能如何等等，但是他们没有办法整合到一个指标上。你以为没有公司想通过一个健康分数直接来筛选出哪些人适合工作，哪些人尽早辞退？当然有，但是这个复杂度只能reduce到一张体检报告，这个体检报告最后的风险也只可能取个所有风险的最高值（也就是只在"风险"这个维度表达出来），而不可能用一个数值代表你整体的健康属性。其实这种"对于某种属性做一个足够简单的评价"的需求永远是社会所需要的：学习能力是否复杂，难以量化？那我们不还是动用了举国的力量完成高考这个史诗级复杂的项目来把每个公民从初期就把学习能力表征到一个分数上？可以理解有些人觉得很多事情可以加权来减少他的脑细胞占用，但是有些领域就是做不到的。</p>
+<p>所以，如果你对特定的应用场景，或者特定的安全方向，可以构造某种标准（而非某种分数）。但是想对CPU整体做一个量化的"安全分数"，属于痴人说明，做出来一定是自娱自乐。</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="页脚导航">
+        <a href="../../5%20%E4%BE%A7%E4%BF%A1%E9%81%93%E5%AE%89%E5%85%A8%E5%92%8C%E6%95%85%E9%9A%9C%E6%B3%A8%E5%85%A5%E6%94%BB%E5%87%BB/5.2%20%E5%B0%8F%E8%AF%95%E7%89%9B%E5%88%80/" class="btn btn-neutral float-left" title="小试牛刀"><span class="icon icon-circle-arrow-left"></span> 上一张</a>
+        <a href="../../9%20%E5%8F%8D%E9%A6%88%E4%B8%8E%E5%90%88%E4%BD%9C/%E5%8F%8D%E9%A6%88%E5%92%8C%E5%90%88%E4%BD%9C/" class="btn btn-neutral float-right" title="反馈与合作">下一张 <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  用<a href="https://www.mkdocs.org/">MkDocs</a>构建，使用<a href="https://readthedocs.org">Read the Docs</a>提供的<a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>。
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="版本">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../../5%20%E4%BE%A7%E4%BF%A1%E9%81%93%E5%AE%89%E5%85%A8%E5%92%8C%E6%95%85%E9%9A%9C%E6%B3%A8%E5%85%A5%E6%94%BB%E5%87%BB/5.2%20%E5%B0%8F%E8%AF%95%E7%89%9B%E5%88%80/" style="color: #fcfcfc">&laquo; 上一张</a></span>
+    
+    
+      <span><a href="../../9%20%E5%8F%8D%E9%A6%88%E4%B8%8E%E5%90%88%E4%BD%9C/%E5%8F%8D%E9%A6%88%E5%92%8C%E5%90%88%E4%BD%9C/" style="color: #fcfcfc">下一张 &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '../../..';</script>
+    <script src="../../../js/theme_extra.js" defer></script>
+    <script src="../../../js/theme.js" defer></script>
+      <script src="../../../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>

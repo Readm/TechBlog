@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh_Hans_CN" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Zipper Stack工作介绍和反思总结 - Readm's Blog</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+        <link href="../../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Zipper Stack\u5de5\u4f5c\u4ecb\u7ecd\u548c\u53cd\u601d\u603b\u7ed3";
+        var mkdocs_page_input_path = "3 Old Blogs (before 2020)/Security/2020-07-27-zipper.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <script src="../../../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-ET7BC0JY44"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-ET7BC0JY44');
+      </script>
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> Readm's Blog
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="搜索文档" title="在此输入需要搜索的内容" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航栏">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../About/">About</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">1 漫谈CPU安全</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="#">0 引言</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/0%20%E5%BC%95%E8%A8%80/0%20%E5%BC%95%E8%A8%80/">0 引言</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">1 通用知识</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/1%20%E9%80%9A%E7%94%A8%E7%9F%A5%E8%AF%86/1.1%20%E4%BB%80%E4%B9%88%E6%98%AFCPU/">1.1 什么是CPU</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/1%20%E9%80%9A%E7%94%A8%E7%9F%A5%E8%AF%86/1.2%20CPU%E5%AE%89%E5%85%A8%E5%8C%85%E5%90%AB%E4%BB%80%E4%B9%88/">1.2 CPU安全包含什么</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/1%20%E9%80%9A%E7%94%A8%E7%9F%A5%E8%AF%86/1.3%20%E5%A8%81%E8%83%81%E6%A8%A1%E5%9E%8B%E5%92%8C%E6%94%BB%E5%87%BB%E5%90%91%E9%87%8F/">1.3 威胁模型和攻击向量</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">2 计算域内安全</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/2%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E5%86%85%E5%AE%89%E5%85%A8/2.1%20%E4%BB%8E%E6%8E%A7%E5%88%B6%E6%B5%81%E5%8A%AB%E6%8C%81%E6%94%BB%E5%87%BB%E8%AE%B2%E8%B5%B7/">2.1 从控制流劫持攻击讲起</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/2%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E5%86%85%E5%AE%89%E5%85%A8/2.2%20%E5%8C%BA%E5%88%86%E6%95%B0%E6%8D%AE%E4%B8%8E%E4%BB%A3%E7%A0%81/">2.2 区分数据与代码</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/2%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E5%86%85%E5%AE%89%E5%85%A8/2.3%20%E4%BB%A3%E7%A0%81%E5%A4%8D%E7%94%A8%E6%94%BB%E5%87%BB/">2.3 代码复用攻击</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/2%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E5%86%85%E5%AE%89%E5%85%A8/2.4%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E5%86%85%E5%AE%89%E5%85%A8%E9%98%B2%E5%BE%A1%E6%8A%80%E6%9C%AF/">2.4 计算域内安全防御技术</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">3 计算域间安全</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/3%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E9%97%B4%E5%AE%89%E5%85%A8/3.1%20%E4%BB%8E%E5%8D%95%E7%BA%AF%E7%9A%84%22%E8%AE%A1%E7%AE%97%E6%9C%BA%22%E5%BC%80%E5%A7%8B/">3.1 从单纯的"计算机"开始</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">4 可信安全和故障注入安全</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/4%20%E5%8F%AF%E4%BF%A1%E5%AE%89%E5%85%A8%E5%92%8C%E6%95%85%E9%9A%9C%E6%B3%A8%E5%85%A5%E5%AE%89%E5%85%A8/4.1%20%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E6%9E%84%E5%BB%BA%E5%8F%AF%E4%BF%A1%E8%AE%A1%E7%AE%97/">4.1 从零开始构建可信计算</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">5 侧信道安全和故障注入攻击</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/5%20%E4%BE%A7%E4%BF%A1%E9%81%93%E5%AE%89%E5%85%A8%E5%92%8C%E6%95%85%E9%9A%9C%E6%B3%A8%E5%85%A5%E6%94%BB%E5%87%BB/5.1%20%E4%BB%8E%22%E4%BE%A7%22%E4%BF%A1%E9%81%93%E8%AE%B2%E8%B5%B7/">从"侧"信道讲起</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/5%20%E4%BE%A7%E4%BF%A1%E9%81%93%E5%AE%89%E5%85%A8%E5%92%8C%E6%95%85%E9%9A%9C%E6%B3%A8%E5%85%A5%E6%94%BB%E5%87%BB/5.2%20%E5%B0%8F%E8%AF%95%E7%89%9B%E5%88%80/">小试牛刀</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">8 杂谈</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/8%20%E6%9D%82%E8%B0%88/8.1%20%E5%A6%82%E4%BD%95%E9%87%8F%E5%8C%96CPU%E5%AE%89%E5%85%A8/">8.1 如何量化CPU安全</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">9 反馈与合作</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/9%20%E5%8F%8D%E9%A6%88%E4%B8%8E%E5%90%88%E4%BD%9C/%E5%8F%8D%E9%A6%88%E5%92%8C%E5%90%88%E4%BD%9C/">反馈与合作</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">2 杂谈</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../2%20%E6%9D%82%E8%B0%88/%E9%9D%A2%E5%90%91%E4%BA%BA%E5%81%9A%E6%8A%80%E6%9C%AF/">以人为本做技术</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">3 Old Blogs (before 2020)</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="#">Others</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../Others/2016-09-06-prompt-in-readline/">在readline中使用颜色prompt导致显示bug</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../Others/2016-09-23-syscall/">Linux的虚拟系统调用加速</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../Others/2018-04-11-reserve-register/">如何在编译器中保留特定寄存器</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../Others/2020-02-03-huffman/">Huffman树的推广</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Security</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../2016-09-09-aslr-linux/">Linux下ASLR概述</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2016-11-09-cet-shadow_stacks/">Intel官方手册：CET技术预览-影子栈</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="./">Zipper Stack工作介绍和反思总结</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#_1">论文</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_2">声明</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_3">简介</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#_4">背景</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#zipper-stack_1">Zipper Stack</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#idea">IDEA来源</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_8">写在最后</a>
+    </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">Riscv</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../riscv/2018-02-18-riscv-addins/">如何在RISC-V中添加一个指令</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../riscv/2018-02-18-riscv/">RISC-V 技术概览</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../riscv/2018-02-19-rocket-0/">Rocket Core源代码笔记——入门</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../riscv/2018-03-15-riscv-bypass/">Rocket Core源代码笔记——旁路</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../riscv/2018-11-19-rocket-scoreboard/">Rocket Core源代码笔记——Scoreboard</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../riscv/2018-11-20-rocket-abbrs/">Rocket Core源代码笔记——缩写</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../riscv/2018-11-21-riscv-control-flow/">Rocket Core源代码笔记——控制流</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="移动导航栏">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">Readm's Blog</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" alt="文档"></a> &raquo;</li>
+          <li>3 Old Blogs (before 2020) &raquo;</li>
+          <li>Security &raquo;</li><li>Zipper Stack工作介绍和反思总结</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="zipper-stack">Zipper Stack工作介绍和反思总结</h1>
+<h2 id="_1">论文</h2>
+<p>经过漫长的等待，Zipper Stack这篇文章终于被ESORICS 2020接收了，可以在自己的博客里做一个简单的介绍和总结了。</p>
+<p><a href="https://arxiv.org/abs/1902.00888">预印版本</a></p>
+<p>后续正式出版我会更新链接。</p>
+<h2 id="_2">声明</h2>
+<p>欢迎感兴趣的研究者与我联系讨论，最近也在找工作，有相关的岗位欢迎联系。不过该设计已经申请专利（若干项），因此如果希望使用还是请联系讨论授权事宜。</p>
+<h2 id="_3">简介</h2>
+<p>Zipper Stack主要是用于保护内存中返回地址的一种新型安全机制。这可以阻止目前最常见的ROP攻击，也可以使得栈溢出漏洞无法直接通过返回地址挟持控制流。在学术中我们可以称之为后向的控制流完整性保护（CFI）。</p>
+<h3 id="_4">背景</h3>
+<p>目前后向控制流完整性保护主要有两个技术路线：</p>
+<h4 id="_5">影子栈</h4>
+<p>影子栈的思路主要是讲返回地址在内存中再备份一份，并在返回时对比栈中的地址和备份是否一致。这种思路的主要优点是比较简单，性能开销也比较低。缺点就是十分依赖于影子栈本身的安全性。因为在内存攻击中，经常假设攻击者可以任意的读写多数内存的，如何保护影子栈成为了关键：</p>
+<ul>
+<li>使用ASLR来隐藏影子栈：这种方式比较简单，但其实安全性很低，因为针对ASLR的去随机化攻击可以说是一抓一大把了。</li>
+<li>使用内存隔离：要借助一些其他的硬件机制。</li>
+<li>Intel CET中使用一个全新的页属性：这种安全性要等实际部署才能评估了，因为DEP也是使用页属性保护，但是绕过的方式也很多。</li>
+</ul>
+<p>这个思路下还有一些类似的设计，比如SafeStack等等。</p>
+<h4 id="mac">MAC验证</h4>
+<p>MAC验证可以应用于多数的代码指针，当然也包括返回地址。目前商用CPU中有计划的例子就是ARMv8.3中的Pointer Authentication（PA），简单来说就是为每个指针生成一个MAC，并在使用时验证MAC是否正确。这种保护主要依赖于秘钥的安全性。这种思路的有点也是比较简单，但是缺点也很明显：</p>
+<ul>
+<li>使用MAC意味着复杂的计算，代码指针尤其是返回地址在应用程序中的使用非常频繁，因此无法承受过于复杂的MAC计算，只能设计轻量级的快速MAC计算模块。</li>
+<li>重放攻击：攻击者可以复用内存内已知的代码指针和其正确的MAC。PA中预留了一个modifier用来给相同的指针生成不同的MAC，但如何选取modifier依然是一个麻烦的问题。</li>
+</ul>
+<h3 id="zipper-stack_1">Zipper Stack</h3>
+<p>Zipper Stack是我们新提出的基于链式MAC来保护程序中所有返回地址的安全机制。简要的示意图如下： </p>
+<p><img alt="Zipper Stack" src="../../img/in-post/zipper/zipper.png" /></p>
+<p>简单来说，我们把所有的MAC值放到一个链中，可以看做是每个区块只包含一个返回地址的区块链。每个MAC的输入除了Key以外，还包括返回地址和与这个返回地址绑定的MAC，而这个MAC并不与当前的返回地址一同存储，而是存储在下一个返回地址的旁边。而最新的返回地址和其MAC生成的新MAC存放在一个特殊的寄存器中（Top寄存器）。</p>
+<p>这个看起来复杂的内存布局如何在程序执行call和return时操作呢？实际上非常简单：</p>
+<p><img alt="操作" src="../../img/in-post/zipper/callret.png" /></p>
+<p>除了正常的栈操作外：</p>
+<ul>
+<li>Call时将Top寄存器的值随返回地址一同压栈，且更新Top寄存器。</li>
+<li>Return时先验证MAC是否正确，然后用栈上弹出的MAC值更新Top寄存器。</li>
+</ul>
+<p>直觉上，这似乎太简单了。因为很多这种链式结构都需要记录指针（上一个或者下一个）。因为调用和返回实在太过频繁，因此记录指针是几乎不可以容忍的开销。好在有了Top寄存器，我们其实并不需要显式的维护这个链式结构。</p>
+<h4 id="_6">优势</h4>
+<p>Zipper Stack相对于之前设计的优势还是非常明显的：</p>
+<ul>
+<li>相对于影子栈：</li>
+<li>不需要额外的影子栈内存的保护（这也是所有基于MAC的方法的优势）</li>
+<li>相对于普通MAC：</li>
+<li>不必担心秘钥泄露：在论文中有详细的阐述，即使攻击者得知当前的秘钥，攻击者也无法修改Top寄存器。唯一可能的途径是构造哈希碰撞，而这几乎不可能：<ul>
+<li>每个配件构造一次</li>
+<li>每次程序运行需要重新构造</li>
+<li>每个配件构造时有一定概率不存在可能的碰撞，5个配件此概率大于90%</li>
+</ul>
+</li>
+<li>天然抵抗复用攻击，相同的地址再次使用时MAC不同：我们不再需要想方设法构造modifier了。</li>
+<li>速度快：因为哈希计算和访存/寄存器更新可以并行，因此我们可以容忍更加复杂，消耗更多周期的MAC算法。一个示意图如下。</li>
+<li><img alt="" src="../../img/in-post/zipper/pipeline.png" /></li>
+</ul>
+<p>总结来说，我们使用了比PA技术更低的运行时开销达到了更高的安全性：
++ 相同MAC算法Zipper Stack更快，相同速度Zipper Stack可以使用更复杂的MAC。
++ 我们可以容忍秘钥泄露，并且暴力破解的难度更高。</p>
+<h4 id="_7">缺点：</h4>
+<p>Zipper Stack也有一定的缺点：依赖于栈的FILO序列，因此当这个序列被破坏时需要一定的修复。也就是异常处理需要更加复杂。下面是三种不同方式的异常处理：</p>
+<ul>
+<li>Zipper Stack：备份并恢复Top寄存器。</li>
+<li>影子栈：备份并恢复影子栈指针。</li>
+<li>MAC：不需要任何操作。</li>
+</ul>
+<p>在论文的评审中，评委还是比较看重这里造成的复杂度和安全性的。因为一般异常处理的现场需要在内存中保护，而Top寄存器是需要假设攻击者无法改写的。因此我在这里设计上下文切换也是需要MAC保护的。实际上我并不认为这是个明显的缺点：</p>
+<ul>
+<li>上下文切换造成的安全隐患本身就非常多，这并不是Zipper Stack引入的。</li>
+<li>熟悉攻击的都知道，影子栈指针虽然看起来人畜无害，但是实际上能控制指针约等于能控制数据，所以影子栈指针也面临基本一样的问题。并且影子栈并不存在其他保护措施（MAC），因此更加危险。</li>
+</ul>
+<p>在博客中我就仅仅介绍思想和设计了，更多细节请参考论文，有兴趣和以为的欢迎联系我进一步讨论。</p>
+<h2 id="idea">IDEA来源</h2>
+<p>这个idea看起来比较像是从区块链来的，然而其实最初的idea来源主要是思考如何能够提高直接MAC保护。最初我认为如果一个MAC的Key是不断变化的，那么攻击难度应该是增加了很多。最初的idea就是使用上一次的MAC作为下一次的Key来使用，这样可以使Key滚动。但是实际上并没有增加信息量，因此我也直觉上认为这不应该提高攻击难度。仔细思考了之后发现确实不行。后来逐渐修改，形成了最后的设计。</p>
+<h2 id="_8">写在最后</h2>
+<p>这篇论文其实从2018年就基本成型了，拖了两年，主要有以下的原因：一是我比较贪心，希望能中安全的顶会，因此一直不甘心，最后中了个ESORICS也算不亏了。二是家庭变故导致一年没什么认真工作的机会。三是第一次发论文经验不足，不仅最初写的惨不忍睹（在此要感谢陈恺老师的指导，非常关键）而且最初对标的是影子栈，思路是错误的。如果当初直接调研到PA，估计行文会更加流畅，也不至于被人直接用ARM PA直接做一个类似的版本抢结果了。评委提醒我有其他人跟我一样的核心思想（他们先发了一个DAC的Work in Progress）的时候还是很崩溃的，早知道不发arxiv了o(╥﹏╥)o。</p>
+<p>另一点感悟还是不要妄自菲薄，当初刚形成这个idea的时候很担心以后也就没啥更好的idea了，因此重视程度过高。实际上这篇文章刚中不就，我的其他工作也被接收了，还是更好的期刊（这个是CCF-B类，而后面是A类）。所以还是要眼光长远，不要拘泥于眼前的得失。</p>
+<p>不论如何，这个工作算是我第一个作品了，现在尘埃落定我还是比较欣慰了。ESORICS也是比较合适的归宿了。</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="页脚导航">
+        <a href="../2016-11-09-cet-shadow_stacks/" class="btn btn-neutral float-left" title="Intel官方手册：CET技术预览-影子栈"><span class="icon icon-circle-arrow-left"></span> 上一张</a>
+        <a href="../../riscv/2018-02-18-riscv-addins/" class="btn btn-neutral float-right" title="如何在RISC-V中添加一个指令">下一张 <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  用<a href="https://www.mkdocs.org/">MkDocs</a>构建，使用<a href="https://readthedocs.org">Read the Docs</a>提供的<a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>。
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="版本">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../2016-11-09-cet-shadow_stacks/" style="color: #fcfcfc">&laquo; 上一张</a></span>
+    
+    
+      <span><a href="../../riscv/2018-02-18-riscv-addins/" style="color: #fcfcfc">下一张 &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '../../..';</script>
+    <script src="../../../js/theme_extra.js" defer></script>
+    <script src="../../../js/theme.js" defer></script>
+      <script src="../../../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>

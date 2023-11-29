@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh_Hans_CN" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Huffman树的推广 - Readm's Blog</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+        <link href="../../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Huffman\u6811\u7684\u63a8\u5e7f";
+        var mkdocs_page_input_path = "3 Old Blogs (before 2020)/Others/2020-02-03-huffman.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <script src="../../../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-ET7BC0JY44"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-ET7BC0JY44');
+      </script>
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> Readm's Blog
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="搜索文档" title="在此输入需要搜索的内容" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航栏">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../About/">About</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">1 漫谈CPU安全</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="#">0 引言</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/0%20%E5%BC%95%E8%A8%80/0%20%E5%BC%95%E8%A8%80/">0 引言</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">1 通用知识</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/1%20%E9%80%9A%E7%94%A8%E7%9F%A5%E8%AF%86/1.1%20%E4%BB%80%E4%B9%88%E6%98%AFCPU/">1.1 什么是CPU</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/1%20%E9%80%9A%E7%94%A8%E7%9F%A5%E8%AF%86/1.2%20CPU%E5%AE%89%E5%85%A8%E5%8C%85%E5%90%AB%E4%BB%80%E4%B9%88/">1.2 CPU安全包含什么</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/1%20%E9%80%9A%E7%94%A8%E7%9F%A5%E8%AF%86/1.3%20%E5%A8%81%E8%83%81%E6%A8%A1%E5%9E%8B%E5%92%8C%E6%94%BB%E5%87%BB%E5%90%91%E9%87%8F/">1.3 威胁模型和攻击向量</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">2 计算域内安全</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/2%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E5%86%85%E5%AE%89%E5%85%A8/2.1%20%E4%BB%8E%E6%8E%A7%E5%88%B6%E6%B5%81%E5%8A%AB%E6%8C%81%E6%94%BB%E5%87%BB%E8%AE%B2%E8%B5%B7/">2.1 从控制流劫持攻击讲起</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/2%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E5%86%85%E5%AE%89%E5%85%A8/2.2%20%E5%8C%BA%E5%88%86%E6%95%B0%E6%8D%AE%E4%B8%8E%E4%BB%A3%E7%A0%81/">2.2 区分数据与代码</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/2%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E5%86%85%E5%AE%89%E5%85%A8/2.3%20%E4%BB%A3%E7%A0%81%E5%A4%8D%E7%94%A8%E6%94%BB%E5%87%BB/">2.3 代码复用攻击</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/2%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E5%86%85%E5%AE%89%E5%85%A8/2.4%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E5%86%85%E5%AE%89%E5%85%A8%E9%98%B2%E5%BE%A1%E6%8A%80%E6%9C%AF/">2.4 计算域内安全防御技术</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">3 计算域间安全</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/3%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E9%97%B4%E5%AE%89%E5%85%A8/3.1%20%E4%BB%8E%E5%8D%95%E7%BA%AF%E7%9A%84%22%E8%AE%A1%E7%AE%97%E6%9C%BA%22%E5%BC%80%E5%A7%8B/">3.1 从单纯的"计算机"开始</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">4 可信安全和故障注入安全</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/4%20%E5%8F%AF%E4%BF%A1%E5%AE%89%E5%85%A8%E5%92%8C%E6%95%85%E9%9A%9C%E6%B3%A8%E5%85%A5%E5%AE%89%E5%85%A8/4.1%20%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E6%9E%84%E5%BB%BA%E5%8F%AF%E4%BF%A1%E8%AE%A1%E7%AE%97/">4.1 从零开始构建可信计算</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">5 侧信道安全和故障注入攻击</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/5%20%E4%BE%A7%E4%BF%A1%E9%81%93%E5%AE%89%E5%85%A8%E5%92%8C%E6%95%85%E9%9A%9C%E6%B3%A8%E5%85%A5%E6%94%BB%E5%87%BB/5.1%20%E4%BB%8E%22%E4%BE%A7%22%E4%BF%A1%E9%81%93%E8%AE%B2%E8%B5%B7/">从"侧"信道讲起</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/5%20%E4%BE%A7%E4%BF%A1%E9%81%93%E5%AE%89%E5%85%A8%E5%92%8C%E6%95%85%E9%9A%9C%E6%B3%A8%E5%85%A5%E6%94%BB%E5%87%BB/5.2%20%E5%B0%8F%E8%AF%95%E7%89%9B%E5%88%80/">小试牛刀</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">8 杂谈</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/8%20%E6%9D%82%E8%B0%88/8.1%20%E5%A6%82%E4%BD%95%E9%87%8F%E5%8C%96CPU%E5%AE%89%E5%85%A8/">8.1 如何量化CPU安全</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">9 反馈与合作</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/9%20%E5%8F%8D%E9%A6%88%E4%B8%8E%E5%90%88%E4%BD%9C/%E5%8F%8D%E9%A6%88%E5%92%8C%E5%90%88%E4%BD%9C/">反馈与合作</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">2 杂谈</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../2%20%E6%9D%82%E8%B0%88/%E9%9D%A2%E5%90%91%E4%BA%BA%E5%81%9A%E6%8A%80%E6%9C%AF/">以人为本做技术</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">3 Old Blogs (before 2020)</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Others</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../2016-09-06-prompt-in-readline/">在readline中使用颜色prompt导致显示bug</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2016-09-23-syscall/">Linux的虚拟系统调用加速</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2018-04-11-reserve-register/">如何在编译器中保留特定寄存器</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="./">Huffman树的推广</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#_1">动机</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_2">相关论文</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_3">问题和算法描述</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#f">准线性权重组合函数（F）</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_4">论文中还有什么</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_5">如何使用这个算法</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_6">算法示例</a>
+    </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">Security</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../Security/2016-09-09-aslr-linux/">Linux下ASLR概述</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../Security/2016-11-09-cet-shadow_stacks/">Intel官方手册：CET技术预览-影子栈</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../Security/2020-07-27-zipper/">Zipper Stack工作介绍和反思总结</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">Riscv</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../riscv/2018-02-18-riscv-addins/">如何在RISC-V中添加一个指令</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../riscv/2018-02-18-riscv/">RISC-V 技术概览</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../riscv/2018-02-19-rocket-0/">Rocket Core源代码笔记——入门</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../riscv/2018-03-15-riscv-bypass/">Rocket Core源代码笔记——旁路</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../riscv/2018-11-19-rocket-scoreboard/">Rocket Core源代码笔记——Scoreboard</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../riscv/2018-11-20-rocket-abbrs/">Rocket Core源代码笔记——缩写</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../riscv/2018-11-21-riscv-control-flow/">Rocket Core源代码笔记——控制流</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="移动导航栏">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">Readm's Blog</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" alt="文档"></a> &raquo;</li>
+          <li>3 Old Blogs (before 2020) &raquo;</li>
+          <li>Others &raquo;</li><li>Huffman树的推广</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="huffman">Huffman树算法的推广</h1>
+<h2 id="_1">动机</h2>
+<p>目前的工作中出现了一种这样的需求：</p>
+<ul>
+<li>需要将一些有不同频率的符号进行二进制前缀编码。需要越频繁的出现的符号编码越短，越少出现的符号编码越长。</li>
+</ul>
+<p>这与基础Huffman编码的需求基本接近。但是具体到细节上，Huffman编码的最优解是使得总cost <code>G=Sum(i){p(i)*l(i)}</code>最低，即最后总长度最底，而我们的需求中，总cost为<code>G=Sum(i){p(i)*2^(l(i))}</code>,即每个编码每次出现的cost不是其长度<code>l</code>而是<code>2^l</code>。这显然与Huffman树的原始需求不用，那么我们应该选用什么样的算法呢？</p>
+<p>最终找到的Huffman树的推广算法中文资料中并没有找到相关的介绍。在此记录和分享一下。</p>
+<h2 id="_2">相关论文</h2>
+<p>类似的需求的讨论在不同的领域内有不同的论文，例如类似的以幂次为cost的Huffman树构造需求出现在一些避免buffer overflow的情况中。但是经过几篇论文追踪后，发现了一个可以将Huffman树推广到准线性的一个方法和证明。</p>
+<p>参考论文：Parker, Jr D S. Conditions for optimality of the Huffman algorithm[J]. SIAM Journal on Computing, 1980, 9(3): 470-489.</p>
+<h2 id="_3">问题和算法描述</h2>
+<p>假设有n+1个节点，有不同的权重：</p>
+<p><img alt="" src="../../img/in-post/huffman/nodeweight.png" /></p>
+<p>可以经过n次合并，合并到一棵二叉树中。</p>
+<p>定义符号为：</p>
+<p><img alt="" src="../../img/in-post/huffman/notation.png" /></p>
+<p>并定义：</p>
+<ul>
+<li>U 为权重的空间，为R+。</li>
+<li>F 为权重组合函数，F:UU--&gt;U <img alt="" src="../../img/in-post/huffman/F.png" /></li>
+<li>G 为树权重函数(Tree cose function) <img alt="" src="../../img/in-post/huffman/G.png" /></li>
+</ul>
+<p>那么<strong>Huffman算法</strong>可以描述为<img alt="" src="../../img/in-post/huffman/huffman.png" />，即：
+给定一个权重组合函数F，每次将两个最小权重的可合并节点合并起来，知道仅剩一个可合并节点。</p>
+<p>可以看出，经典Huffman算法就是<code>F=x+y</code>且<code>G=sum</code>的Huffman算法：</p>
+<p><img alt="" src="../../img/in-post/huffman/origin.png" /></p>
+<h2 id="f">准线性权重组合函数（F）</h2>
+<p>首先定义函数<code>φ</code>性质：</p>
+<p><img alt="" src="../../img/in-post/huffman/fai.png" /></p>
+<p>可定义<code>F</code>性质：</p>
+<p><img alt="" src="../../img/in-post/huffman/defineF.png" /></p>
+<p>最后一条准线性意味着F可以写作此形式，当φ是可逆的。</p>
+<p>例如，原始Huffman树即为<code>λ=1，φ(x)=x</code>则<code>F(x,y)=x+y</code></p>
+<p>为了后续证明，我们需要F：</p>
+<ul>
+<li>为连续的</li>
+<li>必须将U*U影射到U中</li>
+<li>是path-length monotone的（第二个性质定义）</li>
+</ul>
+<p>其中第一项要求<code>φ</code>是连续的，而且因为它是可逆的，也就必然是严格单调的。
+第二项和第三项由以下引理可以保证：（论文中有证明）</p>
+<p><img alt="" src="../../img/in-post/huffman/lemma1.png" /></p>
+<p>即需要满足<code>λ≥1</code>且<code>φ</code>是无界的。</p>
+<p>有了这些条件，可以得到如下性质：</p>
+<p><img alt="" src="../../img/in-post/huffman/QLs.png" /></p>
+<p>论文中引理2为这四个性质和引理1的条件是等价的。</p>
+<p><img alt="" src="../../img/in-post/huffman/lemma2.png" /></p>
+<p>之后有引理3：</p>
+<p><img alt="" src="../../img/in-post/huffman/lemma3.png" /></p>
+<p>即若F满足引理1，则如果<code>φ</code>是恒号的，F是nonshrinking或者是strictly shrinking。且F是nonshrnking当且仅当φ是正的，反之亦然。</p>
+<p>继续定义：若一棵二叉树的每个节点的权重是由F函数从子节点计算而来的，则称之为F-tree。
+一个权重组合函数是<strong>Huffman单调的</strong>如果：</p>
+<ul>
+<li>交换一个F-tree的任意两个等深的节点，其根的权重相等。</li>
+<li>交换一个F-tree的任意两个不等深的节点，若（交换前）较深的节点权重低于较浅的节点的权重，则根的权重交换后升高。反之亦然。</li>
+</ul>
+<p>定理1：若F是Huffman单调的，则Huffman算法得出的树的根节点的权重最小。</p>
+<p><img alt="" src="../../img/in-post/huffman/therorem1.png" /></p>
+<p>证明见论文。这个证明的方法其实与经典的证明方法类似：任意换两个节点，则根权重必然增加。这是经典Huffman树证明的一个推广。</p>
+<p>定理2：F是Huffman单调的当且仅当F满足<code>QL3</code>和<code>QL4</code></p>
+<p><img alt="" src="../../img/in-post/huffman/therorem2.png" /></p>
+<p>由两个引理和两个定理得到推论1：F是Huffman单调的，当且仅当F满足是准线性的并且满足引理1。</p>
+<p><img alt="" src="../../img/in-post/huffman/corollary1.png" /></p>
+<p>至此，最关键的所有定理和推论都结束了：
+若我们可以将带权重的二叉树的权重函数F写成
+<img alt="" src="../../img/in-post/huffman/Fxy.png" /></p>
+<p>即准线性，其中，<code>λ≥1</code>，<code>φ</code>是连续严格递增的无界的函数。或者用<code>QL1~4</code>来验证F是否满足条件，若满足，则可以使用Huffman算法来生成一个根权重最小的树。</p>
+<h2 id="_4">论文中还有什么</h2>
+<p>论文中继续扩展了这些定理和结论，包括多叉树（每个父节点的子节点数目更多）和很多满足这些条件的应用场景的讨论，就包含了我所需要的场景，在此不再赘述，有兴趣的可以详细读论文原文。</p>
+<h2 id="_5">如何使用这个算法</h2>
+<p>我们的需求非常简单，可以写作<code>F(x,y)=2(x+y)</code>即<code>λ=2 φ(x)=x</code>即可，这样每层的权重累加到上一层时就乘以一次2，根节点的权重为最终的cost。满足以上条件，以此为函数构造Huffman树并得到编码即可。</p>
+<p>在我们的需求中<code>G(W(T))</code>等于最后根节点的权重，G的定义只是为了方便更多应用场景的拓展，如果我们根节点的权重已经是总的cost，就可以忽略了。</p>
+<h2 id="_6">算法示例</h2>
+<p>https://github.com/Readm/huffmanX</p>
+<p>这个代码也可以直接使用任意的权重函数F。欢迎测试和使用。</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="页脚导航">
+        <a href="../2018-04-11-reserve-register/" class="btn btn-neutral float-left" title="如何在编译器中保留特定寄存器"><span class="icon icon-circle-arrow-left"></span> 上一张</a>
+        <a href="../../Security/2016-09-09-aslr-linux/" class="btn btn-neutral float-right" title="Linux下ASLR概述">下一张 <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  用<a href="https://www.mkdocs.org/">MkDocs</a>构建，使用<a href="https://readthedocs.org">Read the Docs</a>提供的<a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>。
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="版本">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../2018-04-11-reserve-register/" style="color: #fcfcfc">&laquo; 上一张</a></span>
+    
+    
+      <span><a href="../../Security/2016-09-09-aslr-linux/" style="color: #fcfcfc">下一张 &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '../../..';</script>
+    <script src="../../../js/theme_extra.js" defer></script>
+    <script src="../../../js/theme.js" defer></script>
+      <script src="../../../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>

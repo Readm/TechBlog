@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh_Hans_CN" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>1.2 CPU安全包含什么 - Readm's Blog</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+        <link href="../../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "1.2 CPU\u5b89\u5168\u5305\u542b\u4ec0\u4e48";
+        var mkdocs_page_input_path = "1 \u6f2b\u8c08CPU\u5b89\u5168/1 \u901a\u7528\u77e5\u8bc6/1.2 CPU\u5b89\u5168\u5305\u542b\u4ec0\u4e48.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <script src="../../../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-ET7BC0JY44"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-ET7BC0JY44');
+      </script>
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> Readm's Blog
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="搜索文档" title="在此输入需要搜索的内容" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航栏">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../About/">About</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">1 漫谈CPU安全</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="#">0 引言</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../0%20%E5%BC%95%E8%A8%80/0%20%E5%BC%95%E8%A8%80/">0 引言</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">1 通用知识</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../1.1%20%E4%BB%80%E4%B9%88%E6%98%AFCPU/">1.1 什么是CPU</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="./">1.2 CPU安全包含什么</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#_1">计算域</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_2">跨计算域安全和计算域内安全</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_3">可信执行环境和机密计算</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_4">侧信道和故障注入安全</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_5">特定领域安全</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#_6">本系列结构</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../1.3%20%E5%A8%81%E8%83%81%E6%A8%A1%E5%9E%8B%E5%92%8C%E6%94%BB%E5%87%BB%E5%90%91%E9%87%8F/">1.3 威胁模型和攻击向量</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">2 计算域内安全</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../2%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E5%86%85%E5%AE%89%E5%85%A8/2.1%20%E4%BB%8E%E6%8E%A7%E5%88%B6%E6%B5%81%E5%8A%AB%E6%8C%81%E6%94%BB%E5%87%BB%E8%AE%B2%E8%B5%B7/">2.1 从控制流劫持攻击讲起</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../2%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E5%86%85%E5%AE%89%E5%85%A8/2.2%20%E5%8C%BA%E5%88%86%E6%95%B0%E6%8D%AE%E4%B8%8E%E4%BB%A3%E7%A0%81/">2.2 区分数据与代码</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../2%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E5%86%85%E5%AE%89%E5%85%A8/2.3%20%E4%BB%A3%E7%A0%81%E5%A4%8D%E7%94%A8%E6%94%BB%E5%87%BB/">2.3 代码复用攻击</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../2%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E5%86%85%E5%AE%89%E5%85%A8/2.4%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E5%86%85%E5%AE%89%E5%85%A8%E9%98%B2%E5%BE%A1%E6%8A%80%E6%9C%AF/">2.4 计算域内安全防御技术</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">3 计算域间安全</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../3%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E9%97%B4%E5%AE%89%E5%85%A8/3.1%20%E4%BB%8E%E5%8D%95%E7%BA%AF%E7%9A%84%22%E8%AE%A1%E7%AE%97%E6%9C%BA%22%E5%BC%80%E5%A7%8B/">3.1 从单纯的"计算机"开始</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">4 可信安全和故障注入安全</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../4%20%E5%8F%AF%E4%BF%A1%E5%AE%89%E5%85%A8%E5%92%8C%E6%95%85%E9%9A%9C%E6%B3%A8%E5%85%A5%E5%AE%89%E5%85%A8/4.1%20%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E6%9E%84%E5%BB%BA%E5%8F%AF%E4%BF%A1%E8%AE%A1%E7%AE%97/">4.1 从零开始构建可信计算</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">5 侧信道安全和故障注入攻击</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../5%20%E4%BE%A7%E4%BF%A1%E9%81%93%E5%AE%89%E5%85%A8%E5%92%8C%E6%95%85%E9%9A%9C%E6%B3%A8%E5%85%A5%E6%94%BB%E5%87%BB/5.1%20%E4%BB%8E%22%E4%BE%A7%22%E4%BF%A1%E9%81%93%E8%AE%B2%E8%B5%B7/">从"侧"信道讲起</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../5%20%E4%BE%A7%E4%BF%A1%E9%81%93%E5%AE%89%E5%85%A8%E5%92%8C%E6%95%85%E9%9A%9C%E6%B3%A8%E5%85%A5%E6%94%BB%E5%87%BB/5.2%20%E5%B0%8F%E8%AF%95%E7%89%9B%E5%88%80/">小试牛刀</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">8 杂谈</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../8%20%E6%9D%82%E8%B0%88/8.1%20%E5%A6%82%E4%BD%95%E9%87%8F%E5%8C%96CPU%E5%AE%89%E5%85%A8/">8.1 如何量化CPU安全</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">9 反馈与合作</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../9%20%E5%8F%8D%E9%A6%88%E4%B8%8E%E5%90%88%E4%BD%9C/%E5%8F%8D%E9%A6%88%E5%92%8C%E5%90%88%E4%BD%9C/">反馈与合作</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">2 杂谈</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../2%20%E6%9D%82%E8%B0%88/%E9%9D%A2%E5%90%91%E4%BA%BA%E5%81%9A%E6%8A%80%E6%9C%AF/">以人为本做技术</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">3 Old Blogs (before 2020)</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="#">Others</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/Others/2016-09-06-prompt-in-readline/">在readline中使用颜色prompt导致显示bug</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/Others/2016-09-23-syscall/">Linux的虚拟系统调用加速</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/Others/2018-04-11-reserve-register/">如何在编译器中保留特定寄存器</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/Others/2020-02-03-huffman/">Huffman树的推广</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">Security</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/Security/2016-09-09-aslr-linux/">Linux下ASLR概述</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/Security/2016-11-09-cet-shadow_stacks/">Intel官方手册：CET技术预览-影子栈</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/Security/2020-07-27-zipper/">Zipper Stack工作介绍和反思总结</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">Riscv</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/riscv/2018-02-18-riscv-addins/">如何在RISC-V中添加一个指令</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/riscv/2018-02-18-riscv/">RISC-V 技术概览</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/riscv/2018-02-19-rocket-0/">Rocket Core源代码笔记——入门</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/riscv/2018-03-15-riscv-bypass/">Rocket Core源代码笔记——旁路</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/riscv/2018-11-19-rocket-scoreboard/">Rocket Core源代码笔记——Scoreboard</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/riscv/2018-11-20-rocket-abbrs/">Rocket Core源代码笔记——缩写</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/riscv/2018-11-21-riscv-control-flow/">Rocket Core源代码笔记——控制流</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="移动导航栏">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">Readm's Blog</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" alt="文档"></a> &raquo;</li>
+          <li>1 漫谈CPU安全 &raquo;</li>
+          <li>1 通用知识 &raquo;</li><li>1.2 CPU安全包含什么</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="12-cpu">1.2 CPU安全包含什么</h1>
+<p>标题的问题其实是最重要的问题。做安全，最容易回答的是一个具体的问题应该如何去做，而最难回答的问题，就是做到了哪些才能说明系统是安全的。尤其安全还是一个容易背锅的岗位，因此很多从业者也不追求搞清楚这个问题，反正相关的罗列上去，仿佛回到了考阅读理解多写字总能压上得分点的时代。正好ChatGPT很火，我们来看看他怎么说：</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p><strong>提问：</strong>
+做一个安全的CPU需要考虑哪些方面？</p>
+<p><strong>ChatGPT：</strong>
+做一个安全的CPU需要考虑以下方面：</p>
+<ol>
+<li>物理安全：确保CPU的物理安全，防止未经授权的人员接触或修改CPU。</li>
+<li>逻辑安全：确保CPU的逻辑安全，防止未经授权的人员通过软件或硬件手段攻击CPU。</li>
+<li>数据安全：确保CPU内部数据的安全，防止未经授权的人员获取或篡改CPU内部数据。</li>
+<li>通信安全：确保CPU与其他设备之间的通信安全，防止未经授权的人员窃听或篡改通信数据。</li>
+<li>软件安全：确保CPU的软件安全，防止未经授权的人员通过软件手段攻击CPU。</li>
+<li>硬件安全：确保CPU的硬件安全，防止未经授权的人员通过硬件手段攻击CPU。</li>
+<li>安全升级：确保CPU的安全升级，及时修复已知的安全漏洞，提高CPU的安全性能。</li>
+</ol>
+<p>综上所述，做一个安全的CPU需要考虑多方面的因素，需要综合考虑物理安全、逻辑安全、数据安全、通信安全、软件安全、硬件安全以及安全升级等方面。</p>
+</div>
+<p>你看ChatGPT也是摊大饼，说明他的输入中确实没有太多这个视角的讨论。（太好了，我的工作暂时还没有被ChatGPT革命。</p>
+<p>不过CPU需要的安全逻辑其实还是有非常多共性的，我们这里简单的从理论上讲CPU涉及到的安全知识作出大致分类，然后按照不同分类下的逻辑来逐个解释。至于真实的CPU设计如何做好安全——那可能是付费内容了。</p>
+<h2 id="_1">计算域</h2>
+<p>在描述CPU安全的范围前，我们先定义一个新的概念：<code>计算域</code>。它指一个软件计算环境，包括软件可使用的所有资源，计算能力等。这个概念其实一般情况下表示一个软件/硬件的上下文中。但是，<code>上下文</code>这个概念在不同的场景下有着不同的含义，例如，在进程切换，异常处理等时候，我们会用“保存上下文”这样的表述来指当前的寄存器值的集合。我们避免混淆，在本系列中直接新定义一个概念。</p>
+<p>CPU本质上是个冯诺依曼机——这是一句废话，但是其实就如前一小节所述的每一个层次，其实也都是一个冯诺依曼机。甚至有些软件还会不依赖于硬件自己构造一些新的计算层次。例如解释执行的语言中，语言的解释器其实也是一个冯诺依曼机，而解释器读入的脚本就是其输入代码。讨论安全，一个重要的前提就是，安全问题是否是跨越这个层次的，这就是我们新定义的<code>计算域</code>。</p>
+<h2 id="_2">跨计算域安全和计算域内安全</h2>
+<p>为什么我们要引入这个抽象概念呢？因为CPU相关的安全问题，第一层切分就是一个安全问题是否涉及到不同的计算域。通俗的说，他是一个“提权问题”，还是一个“软件安全问题”。（你看，这种叫法就很模糊）</p>
+<p>所谓<code>跨计算域安全</code>就是指攻击者和受害者分别处在不同的计算域中。这个计算域可以是软件上下文不同，例如一个JavaScript的虚拟机中的不同脚本；也可以是硬件上下文中，例如，一个用户态程序攻击内核。因为不同的计算域之间必然有资源隔离手段：可能是CPU权限不同，页表不同，可能是页权限，也可能仅仅是寄存器状态不同。无论是什么手段，跨计算域安全的攻击目的，就是超越当前计算域权限，获得其他计算域的能力，因此经常被称为“提权”。简单来说<code>跨计算域安全</code>的重点在于计算资源的<strong>权限管理与隔离技术</strong>。</p>
+<p>那么，假设一个计算域内，只使用了它自己权限内的权限，那还有安全问题么？其实还是有的，因为程序必须按照程序员所期望的方式工作，如果<strong>攻击者可以控制程序的执行方式，使其运行方式不同于编写者所预期</strong>，那就是<code>计算域内安全</code>问题了（例如，一个简单的计算输入算式结果的程序，可以在特殊的输入下远程下恶意程序并运行。这在安全机制较少的计算机上，稍加学习就可以做到）。为什么会出现这种问题呢？因为软件程序本身的设计不可能遍历所有的输入保证其工作正确，也很难使用形式化证明的方式来确认其安全。许多计算都是靠着精巧但不一定严谨的设计“恰好”运行的，所谓“能跑就行”（其实多数时候也是为了更高的性能，我们会在后文介绍这些权衡 todo: link ）。这些不严谨的设计，在攻击者的钻研和利用后，就可以被攻击者控制了。这种安全问题中最常见的就是<code>内存安全</code>，即<em>内存数据的更新和读取没有按照软件开发者本意进行，而可能被攻击者违规读取、写入并加以利用的安全问题</em>。</p>
+<div class="admonition comment">
+<p class="admonition-title">Comment</p>
+<p>安全界就是如此，一个“内存安全”的定义甚至在中文互联网上找不到一个明确的定义。例如<a href="https://baike.baidu.com/item/%E5%86%85%E5%AD%98%E5%AE%89%E5%85%A8/51027589?fr=aladdin">百度百科</a>和<a href="https://zhuanlan.zhihu.com/p/102668696">这篇博客</a>都语焉不详。我理解编写者甚至“不敢”下一个定义，生怕遗漏什么概念被人喷不懂安全，结果就是罗列一些相关概念并加一个“等”字作为免责声明。这是不利于我们进步的。在本系列中我会非常大胆的开始一系列名词定义，也欢迎讨论。</p>
+</div>
+<p>用前面的比喻来讲，对于厨房的管理员来讲，他管理的计算域就是每一个使用他管理厨房的客户。每个客户只应该使用管理员预期他可以使用的食材和厨具。如果某个客户使用了只有管理员才可以使用的厨具或者仓库，那么他就是一个“提权”，也就是<code>跨计算域攻击</code>。如果一个客户用厨房开了饭馆，迎接的客人点了一些奇奇怪怪的菜品，使得他没法服务其他客人，那么在管理员看来，这是你自己范围内的问题，是一个<code>计算域内攻击</code>。计算域内的问题我更喜欢另一个比喻。我们在那个章节再来展开。</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>这里再补充一句，其实这两个概念也并非泾渭分明的。因为某些提权攻击，其实是利用了受害者侧的计算域内的攻击。但是这种分类最大的好处是让读者可以清晰地区分出不同方向安全的逻辑，不至于经常混为一谈。这里先埋下一个伏笔：请读者思考一个问题：什么是代码，什么是数据？在我们介绍完计算域内安全后，我们再来回顾这个问题的答案。</p>
+</div>
+<h2 id="_3">可信执行环境和机密计算</h2>
+<p>todo：</p>
+<h2 id="_4">侧信道和故障注入安全</h2>
+<p>侧信道安全和故障注入安全的逻辑是独立于前面两者的，前面两者仍然是在架构层定义范围内（这里简单的理解为软件可见的内容即可，在这一部分我们再详细解释）。而侧信道和故障注入安全已经深入到了CPU的微架构设计甚至物理设计，因此他打破了非常多人为设计的安全假设，问题十分棘手。尤其2017年后面出现的Spectre和Meltdown攻击真的是困(zao)扰(fu)了广大的计算系统安全的研究者。因此我们把它单独列为一个部分。</p>
+<p>用前面的比喻来讲，侧信道攻击是指一个想窃取某个饭馆秘密配方的攻击者，没有偷偷潜入后厨去查看制作过程。而是通过一些做饭时产生的外部影响来推测配方，例如蹲在进货口记录食材的购买，查看烟囱来记录炒菜的时间，去下水道和垃圾箱看食材处理的残渣。结合自己对后厨构造的认知，来逆推出秘密配方。如果是故障注入攻击，那么可能他会在进货口偷偷混入一些腐坏的食材，通过品尝那些菜品味道变化来猜测这些食材用到了那些菜品上。</p>
+<h2 id="_5">特定领域安全</h2>
+<p>这一部分其实是免责的“其他”部分:)。因为多数的，有迹可循的安全设计其实都会涵盖在前面三个领域了。但是实际工程中，还有茫茫多的设计并不能直接分类到前面所述的领域。他们一般有以下由来：</p>
+<ul>
+<li>为了对抗攻击者常用工具而特化的防御手段</li>
+<li>为了特定领域内的安全需求定制</li>
+<li>和其他安全设计相互配合使用</li>
+</ul>
+<h3 id="_6">本系列结构</h3>
+<p>因此，本系列也就按照以下几个部分行文：</p>
+<ul>
+<li>计算系统安全通用知识</li>
+<li>计算域间安全</li>
+<li>计算域内安全</li>
+<li>侧信道和故障输入安全</li>
+<li>特定领域安全</li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="页脚导航">
+        <a href="../1.1%20%E4%BB%80%E4%B9%88%E6%98%AFCPU/" class="btn btn-neutral float-left" title="1.1 什么是CPU"><span class="icon icon-circle-arrow-left"></span> 上一张</a>
+        <a href="../1.3%20%E5%A8%81%E8%83%81%E6%A8%A1%E5%9E%8B%E5%92%8C%E6%94%BB%E5%87%BB%E5%90%91%E9%87%8F/" class="btn btn-neutral float-right" title="1.3 威胁模型和攻击向量">下一张 <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  用<a href="https://www.mkdocs.org/">MkDocs</a>构建，使用<a href="https://readthedocs.org">Read the Docs</a>提供的<a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>。
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="版本">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../1.1%20%E4%BB%80%E4%B9%88%E6%98%AFCPU/" style="color: #fcfcfc">&laquo; 上一张</a></span>
+    
+    
+      <span><a href="../1.3%20%E5%A8%81%E8%83%81%E6%A8%A1%E5%9E%8B%E5%92%8C%E6%94%BB%E5%87%BB%E5%90%91%E9%87%8F/" style="color: #fcfcfc">下一张 &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '../../..';</script>
+    <script src="../../../js/theme_extra.js" defer></script>
+    <script src="../../../js/theme.js" defer></script>
+      <script src="../../../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>

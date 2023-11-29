@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh_Hans_CN" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>2.3 代码复用攻击 - Readm's Blog</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+        <link href="../../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "2.3 \u4ee3\u7801\u590d\u7528\u653b\u51fb";
+        var mkdocs_page_input_path = "1 \u6f2b\u8c08CPU\u5b89\u5168/2 \u8ba1\u7b97\u57df\u5185\u5b89\u5168/2.3 \u4ee3\u7801\u590d\u7528\u653b\u51fb.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <script src="../../../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-ET7BC0JY44"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-ET7BC0JY44');
+      </script>
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> Readm's Blog
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="搜索文档" title="在此输入需要搜索的内容" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航栏">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../About/">About</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">1 漫谈CPU安全</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="#">0 引言</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../0%20%E5%BC%95%E8%A8%80/0%20%E5%BC%95%E8%A8%80/">0 引言</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">1 通用知识</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../1%20%E9%80%9A%E7%94%A8%E7%9F%A5%E8%AF%86/1.1%20%E4%BB%80%E4%B9%88%E6%98%AFCPU/">1.1 什么是CPU</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../1%20%E9%80%9A%E7%94%A8%E7%9F%A5%E8%AF%86/1.2%20CPU%E5%AE%89%E5%85%A8%E5%8C%85%E5%90%AB%E4%BB%80%E4%B9%88/">1.2 CPU安全包含什么</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../1%20%E9%80%9A%E7%94%A8%E7%9F%A5%E8%AF%86/1.3%20%E5%A8%81%E8%83%81%E6%A8%A1%E5%9E%8B%E5%92%8C%E6%94%BB%E5%87%BB%E5%90%91%E9%87%8F/">1.3 威胁模型和攻击向量</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">2 计算域内安全</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../2.1%20%E4%BB%8E%E6%8E%A7%E5%88%B6%E6%B5%81%E5%8A%AB%E6%8C%81%E6%94%BB%E5%87%BB%E8%AE%B2%E8%B5%B7/">2.1 从控制流劫持攻击讲起</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2.2%20%E5%8C%BA%E5%88%86%E6%95%B0%E6%8D%AE%E4%B8%8E%E4%BB%A3%E7%A0%81/">2.2 区分数据与代码</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="./">2.3 代码复用攻击</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#_1">借刀杀人</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_2">思路打开</a>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2.4%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E5%86%85%E5%AE%89%E5%85%A8%E9%98%B2%E5%BE%A1%E6%8A%80%E6%9C%AF/">2.4 计算域内安全防御技术</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">3 计算域间安全</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../3%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E9%97%B4%E5%AE%89%E5%85%A8/3.1%20%E4%BB%8E%E5%8D%95%E7%BA%AF%E7%9A%84%22%E8%AE%A1%E7%AE%97%E6%9C%BA%22%E5%BC%80%E5%A7%8B/">3.1 从单纯的"计算机"开始</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">4 可信安全和故障注入安全</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../4%20%E5%8F%AF%E4%BF%A1%E5%AE%89%E5%85%A8%E5%92%8C%E6%95%85%E9%9A%9C%E6%B3%A8%E5%85%A5%E5%AE%89%E5%85%A8/4.1%20%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E6%9E%84%E5%BB%BA%E5%8F%AF%E4%BF%A1%E8%AE%A1%E7%AE%97/">4.1 从零开始构建可信计算</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">5 侧信道安全和故障注入攻击</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../5%20%E4%BE%A7%E4%BF%A1%E9%81%93%E5%AE%89%E5%85%A8%E5%92%8C%E6%95%85%E9%9A%9C%E6%B3%A8%E5%85%A5%E6%94%BB%E5%87%BB/5.1%20%E4%BB%8E%22%E4%BE%A7%22%E4%BF%A1%E9%81%93%E8%AE%B2%E8%B5%B7/">从"侧"信道讲起</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../5%20%E4%BE%A7%E4%BF%A1%E9%81%93%E5%AE%89%E5%85%A8%E5%92%8C%E6%95%85%E9%9A%9C%E6%B3%A8%E5%85%A5%E6%94%BB%E5%87%BB/5.2%20%E5%B0%8F%E8%AF%95%E7%89%9B%E5%88%80/">小试牛刀</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">8 杂谈</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../8%20%E6%9D%82%E8%B0%88/8.1%20%E5%A6%82%E4%BD%95%E9%87%8F%E5%8C%96CPU%E5%AE%89%E5%85%A8/">8.1 如何量化CPU安全</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">9 反馈与合作</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../9%20%E5%8F%8D%E9%A6%88%E4%B8%8E%E5%90%88%E4%BD%9C/%E5%8F%8D%E9%A6%88%E5%92%8C%E5%90%88%E4%BD%9C/">反馈与合作</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">2 杂谈</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../2%20%E6%9D%82%E8%B0%88/%E9%9D%A2%E5%90%91%E4%BA%BA%E5%81%9A%E6%8A%80%E6%9C%AF/">以人为本做技术</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">3 Old Blogs (before 2020)</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="#">Others</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/Others/2016-09-06-prompt-in-readline/">在readline中使用颜色prompt导致显示bug</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/Others/2016-09-23-syscall/">Linux的虚拟系统调用加速</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/Others/2018-04-11-reserve-register/">如何在编译器中保留特定寄存器</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/Others/2020-02-03-huffman/">Huffman树的推广</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">Security</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/Security/2016-09-09-aslr-linux/">Linux下ASLR概述</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/Security/2016-11-09-cet-shadow_stacks/">Intel官方手册：CET技术预览-影子栈</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/Security/2020-07-27-zipper/">Zipper Stack工作介绍和反思总结</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">Riscv</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/riscv/2018-02-18-riscv-addins/">如何在RISC-V中添加一个指令</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/riscv/2018-02-18-riscv/">RISC-V 技术概览</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/riscv/2018-02-19-rocket-0/">Rocket Core源代码笔记——入门</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/riscv/2018-03-15-riscv-bypass/">Rocket Core源代码笔记——旁路</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/riscv/2018-11-19-rocket-scoreboard/">Rocket Core源代码笔记——Scoreboard</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/riscv/2018-11-20-rocket-abbrs/">Rocket Core源代码笔记——缩写</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/riscv/2018-11-21-riscv-control-flow/">Rocket Core源代码笔记——控制流</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="移动导航栏">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">Readm's Blog</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" alt="文档"></a> &raquo;</li>
+          <li>1 漫谈CPU安全 &raquo;</li>
+          <li>2 计算域内安全 &raquo;</li><li>2.3 代码复用攻击</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="23">2.3 代码复用攻击</h1>
+<h2 id="_1">借刀杀人</h2>
+<p>上一回我们说道，攻击者可以通过<strong>误导CPU跳转到已有代码页上</strong>完成攻击。我们先展示一下这个过程：（Markdown开始不够用了，开始上图）</p>
+<p><img alt="" src="../../static/2.3%20%E5%9B%BE%E4%B8%80.png" /></p>
+<p>这里跟上一小节的区别就是，这里的攻击代码（第6页第100行和第6页第101行）是某个代码页的内容。而这似乎意味着，被攻击的程序中本来就需要有恶意代码存在？实际上，并不需要被攻击的程序中有完全是恶意的代码，这里有两种思路：</p>
+<ol>
+<li>通过配置恶意参数使一个非恶意的程序做出恶意行为。记得吗，配置参数也可以通过栈空间，所以攻击者一样可以控制。</li>
+<li>通过串联不同的代码来“组装”成恶意的程序。</li>
+</ol>
+<p>首先说第一种：例如，“向用户展示xxx”很明显是一个常用功能，完全可以封装成一个函数，把展示内容作为参数传进去。</p>
+<p><img alt="" src="../../static/2.3%20%E5%9B%BE%E4%BA%8C.png" /></p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>细心的话你会发现其实返回地址的位置下移了，其实这会导致攻击失败，正确的做法是99行和100行都上移一行。不过这无伤大雅。</p>
+</div>
+<p>这种方式就是比较初期的<code>ret-to-lib</code>攻击，即return to library。不过这种方式其实能力比较有限，因为它只能通过配置参数+选择函数来攻击。如果我们想做一些复杂的事情呢？那就需要第二种思路了，<strong>串联不同的代码</strong>。这种思路其实也很简单，顺着刚才我们的攻击，如果CPU执行到第6页的第101行后面是什么呢？是一般函数结束的<strong>返回指令</strong>，它居然又傻傻的回到栈里找地址准备跳过去了！那我们一定不能浪费这个大好机会啊，我们再写一个地址等着他。也就是说，只要我们跳转的函数会返回，并且我们同时写入多个伪造的函数地址，我们就可以持续的控制CPU执行的代码，这就达到了串联不同代码的能力了。</p>
+<p><img alt="" src="../../static/2.3%20%E5%9B%BE%E4%B8%89.png" /></p>
+<p>这种攻击被称为<a href="https://zh.wikipedia.org/wiki/%E8%BF%94%E5%9B%9E%E5%AF%BC%E5%90%91%E7%BC%96%E7%A8%8B">ROP (Return-Oriented Programming)</a>。这就很厉害了，你可以组织任意多个函数来构成某种攻击。有没有注意到？其实最后一次调用写得是“另一段代码”而不是“另一个函数”。因为其实我们并不一定需要一个完整的函数，只需要一段代码的结束是返回指令即可。那么内存中有茫茫多的代码，也就是无数种选择可以作为我们的攻击工具了。很轻松就可以做到<a href="https://zh.wikipedia.org/zh-cn/%E5%9C%96%E9%9D%88%E5%AE%8C%E5%82%99%E6%80%A7">图灵完备</a>，白话来说，就是在当前的计算环境中可以执行任意的算法，“为所欲为”。也就是本章开头提到的<code>任意代码执行</code>能力。</p>
+<h2 id="_2">思路打开</h2>
+<p>让我们回顾一下代码复用攻击的关键前提，并且尝试打开一下思路。</p>
+<p><img alt="" src="../../static/%E6%A0%BC%E5%B1%80%E6%89%93%E5%BC%80.jpeg" /></p>
+<ul>
+<li>首先，由于目前内存已经标记了每个页是代码还是数据，因此直接把代码当成输入塞到栈中的方法不再奏效。</li>
+<li>因此，我们需要使用内存中已经存在的代码。而控制CPU使用哪些代码，必须由我们来控制。这就需要：</li>
+<li>某些控制流转移的指令（跳转/分支指令）的目的地址由某些我们能控制的数据所决定<ul>
+<li>这些指令中，最常见的就是<strong>返回指令</strong>，它从栈上读取地址并跳转过去。</li>
+<li>另一类指令，叫做<strong>间接跳转指令</strong>，它从某个地址上读取一个指令地址并跳转过去（这里“间接”表示地址在某个内存处写着，而不是写在指令本身里面。），如果这个地址也被我们控制（比如也是在栈上），那么也可以用来做攻击，被称为JOP (Jump-Oriented Programming)。</li>
+<li>有一些<strong>间接调用指令</strong>，也是从某个地址读取函数地址并跳转过去。最常见的用法是C++语言的虚函数场景，他从一个对象的虚函数表指针去找一个函数地址，而这个指针本身位于可写内存中，有可能被缓冲区溢出覆盖掉。这种攻击称为COOP (Counterfeit Object-oriented Programming)。</li>
+</ul>
+</li>
+<li>还有一种思路，就是既然我们可以调用库函数，那我们可以直接通过库函数来修改当前页的属性啦，比如让栈可执行，或者将代码段增加可写属性，再将输入的代码拷贝进去。也就是<strong>基于代码复用绕过DEP来构建代码注入攻击</strong>。</li>
+</ul>
+<p>这时候我们再来回顾思考题2.2：</p>
+<div class="admonition 思考">
+<p class="admonition-title">思考</p>
+<p><strong>思考题 2.2：</strong></p>
+<p>有种说法是认为，内存安全问题的根本原因在于冯诺依曼结构没有区分数据和代码（<a href="https://www.baidu.com/s?ie=utf-8&amp;f=8&amp;rsv_bp=1&amp;rsv_idx=1&amp;tn=baidu&amp;wd=%22%E7%8E%B0%E4%BB%A3%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E9%81%B5%E5%BE%AA%E5%86%AF%E8%AF%BA%E4%BE%9D%E6%9B%BC%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84%3A%E6%B2%A1%E6%9C%89%E5%9C%A8%E5%86%85%E5%AD%98%E4%B8%AD%E4%B8%A5%E6%A0%BC%E5%8C%BA%E5%88%86%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A8%8B%E5%BA%8F%E7%9A%84%E6%95%B0%E6%8D%AE%E5%92%8C%E6%8C%87%E4%BB%A4%22&amp;fenlei=256&amp;rsv_pq=0xb9063ab3000becb6&amp;rsv_t=340e3PXWH7v0RVSGz00dFcflLl23gy1GpITqexunC1Znnz2f8Ke2v0Ua%2FI5g&amp;rqlang=en&amp;rsv_enter=1&amp;rsv_dl=tb&amp;rsv_n=2&amp;rsv_sug3=1&amp;rsv_sug2=0&amp;rsv_btype=i&amp;inputT=716&amp;rsv_sug4=716">出处</a>）。一些英文<a href="https://info.dovermicrosystems.com/blog/von-neumann-cybersecurity">出处1</a> <a href="extension://bfdogplmndidlpjfhoijckpakkdjkkil/pdf/viewer.html?file=https%3A%2F%2Fwww.forth.gr%2Fonassis%2Flectures%2F2008-07-21%2Fpresentations%2FvonNeumann_and_the_current_computer_security_landscape.pdf">出处2</a>。甚至保密局官网也有类似的<a href="http://www.gjbmj.gov.cn/n1/2020/1211/c411145-31963763.html">表述</a>。表面上看我们当然可以归结于数据与代码的混用，但是这是否是根本问题呢？</p>
+</div>
+<p>其实我们看到，即使你区分了数据和代码，攻击者仍然可以用数据来控制代码的流向来构成攻击。这是几乎无法避免的：</p>
+<ol>
+<li>你无法避免让攻击者输入数据：没有输入数据的程序有什么用呢？（当然你可以对用户做限制，只服务你认为安全的用户。但是如何辨别“安全”的用户又是另一个安全课题。）</li>
+<li>你无法避免让代码的使用依赖于数据：因为这极大的限制了编程的自由度，试想不论输入是什么，处理过程完全一样，这样的程序肯定功能很有限，或者效率极低。（不过有趣的是我们有时候也会故意写出这样的程序，我们有缘的话后面的章节见。）</li>
+</ol>
+<p>所以更激进的思考方式是：其实这个世界上并没有所谓的数据和代码的区分，数据其实也是代码：你可以理解为每个程序都是一台功能迥异的计算机，而数据只是专门为这台计算机设计的专门的代码罢了。</p>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>一般理解</th>
+<th>思路打开</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CPU</td>
+<td>可以执行代码的机器</td>
+<td>平平无奇的CPU</td>
+</tr>
+<tr>
+<td>程序代码</td>
+<td>由代码组成一些功能</td>
+<td>一种抽象的定制化CPU</td>
+</tr>
+<tr>
+<td>数据</td>
+<td>这些功能的输入</td>
+<td>为这种定制化CPU定制的指令</td>
+</tr>
+</tbody>
+</table>
+<p>例如，某个文本浏览器（记事本.exe）是一个读取文件并显示到屏幕上的程序。但是读取的文件是不是也是某种指令呢？例如第一行只有一个单词“Hello”，那无非是一个定制化指令序列：</p>
+<ol>
+<li>显示<code>H</code>到屏幕上</li>
+<li>显示<code>e</code>到屏幕上</li>
+<li>显示<code>l</code>到屏幕上</li>
+<li>显示<code>l</code>到屏幕上</li>
+<li>显示<code>o</code>到屏幕上</li>
+<li>换下一行</li>
+</ol>
+<p>所以越复杂的程序约可能被攻击，因为它对数据的解读更加复杂。例如Office软件中都是可以内嵌代码的，你以为只是一个文档，其实里面内容是有可能被直接解读成代码的。我记得初中的时候用杀毒软件就扫出过一个jpg中含有病毒，当时就觉得很惊讶：原来图片还可以作为病毒。直到自己跟着教程亲自从一个音频文件攻击软件弹出计算器，才解开当年的疑惑。</p>
+<p>这种思路其实也被yuange大大在很多年前就提过，他称为DVE (Data Virtual Execution)技术。不过网上很狭义的理解成了就是对于一个CVE的攻击，然后大家就忘掉本来的事实细节，大吹特吹，神乎其神。实际上它并不应该被称为一种技术，而是一个思路，即<em>控制虚拟机甚至普通程序的控制流的数据都可以当做狭义的PC指针来利用，只需要这种理解下该虚拟机的语义足够丰富能够构成攻击</em>。而且很多情况下，这种方式的攻击（并没有劫持控制流）也经常会被看做是程序本身的逻辑bug，而非一种特定的攻击技术。</p>
+<p>所以，思考题的答案也非常明确了：冯诺依曼结构确实是攻击成功的一部分原因，但是并不是根本原因，无论数据和代码是否被严格区分，攻击仍然可能（而且永远）存在。攻击存在的本质原因是绝大多数程序的编写者并没有足够的成本去验证程序的所有可能性的集合空间，因此必然出现一些超出编写者初衷的能力。这些能力中，可以构成攻击的，即为漏洞（否则就是单纯的bug），而构成攻击的种种好用的“套路”，就是各种攻击技术。</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="页脚导航">
+        <a href="../2.2%20%E5%8C%BA%E5%88%86%E6%95%B0%E6%8D%AE%E4%B8%8E%E4%BB%A3%E7%A0%81/" class="btn btn-neutral float-left" title="2.2 区分数据与代码"><span class="icon icon-circle-arrow-left"></span> 上一张</a>
+        <a href="../2.4%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E5%86%85%E5%AE%89%E5%85%A8%E9%98%B2%E5%BE%A1%E6%8A%80%E6%9C%AF/" class="btn btn-neutral float-right" title="2.4 计算域内安全防御技术">下一张 <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  用<a href="https://www.mkdocs.org/">MkDocs</a>构建，使用<a href="https://readthedocs.org">Read the Docs</a>提供的<a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>。
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="版本">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../2.2%20%E5%8C%BA%E5%88%86%E6%95%B0%E6%8D%AE%E4%B8%8E%E4%BB%A3%E7%A0%81/" style="color: #fcfcfc">&laquo; 上一张</a></span>
+    
+    
+      <span><a href="../2.4%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E5%86%85%E5%AE%89%E5%85%A8%E9%98%B2%E5%BE%A1%E6%8A%80%E6%9C%AF/" style="color: #fcfcfc">下一张 &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '../../..';</script>
+    <script src="../../../js/theme_extra.js" defer></script>
+    <script src="../../../js/theme.js" defer></script>
+      <script src="../../../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>

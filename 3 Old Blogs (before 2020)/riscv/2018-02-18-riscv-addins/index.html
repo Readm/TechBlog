@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh_Hans_CN" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>如何在RISC-V中添加一个指令 - Readm's Blog</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+        <link href="../../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "\u5982\u4f55\u5728RISC-V\u4e2d\u6dfb\u52a0\u4e00\u4e2a\u6307\u4ee4";
+        var mkdocs_page_input_path = "3 Old Blogs (before 2020)/riscv/2018-02-18-riscv-addins.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <script src="../../../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-ET7BC0JY44"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-ET7BC0JY44');
+      </script>
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> Readm's Blog
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="搜索文档" title="在此输入需要搜索的内容" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航栏">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../About/">About</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">1 漫谈CPU安全</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="#">0 引言</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/0%20%E5%BC%95%E8%A8%80/0%20%E5%BC%95%E8%A8%80/">0 引言</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">1 通用知识</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/1%20%E9%80%9A%E7%94%A8%E7%9F%A5%E8%AF%86/1.1%20%E4%BB%80%E4%B9%88%E6%98%AFCPU/">1.1 什么是CPU</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/1%20%E9%80%9A%E7%94%A8%E7%9F%A5%E8%AF%86/1.2%20CPU%E5%AE%89%E5%85%A8%E5%8C%85%E5%90%AB%E4%BB%80%E4%B9%88/">1.2 CPU安全包含什么</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/1%20%E9%80%9A%E7%94%A8%E7%9F%A5%E8%AF%86/1.3%20%E5%A8%81%E8%83%81%E6%A8%A1%E5%9E%8B%E5%92%8C%E6%94%BB%E5%87%BB%E5%90%91%E9%87%8F/">1.3 威胁模型和攻击向量</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">2 计算域内安全</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/2%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E5%86%85%E5%AE%89%E5%85%A8/2.1%20%E4%BB%8E%E6%8E%A7%E5%88%B6%E6%B5%81%E5%8A%AB%E6%8C%81%E6%94%BB%E5%87%BB%E8%AE%B2%E8%B5%B7/">2.1 从控制流劫持攻击讲起</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/2%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E5%86%85%E5%AE%89%E5%85%A8/2.2%20%E5%8C%BA%E5%88%86%E6%95%B0%E6%8D%AE%E4%B8%8E%E4%BB%A3%E7%A0%81/">2.2 区分数据与代码</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/2%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E5%86%85%E5%AE%89%E5%85%A8/2.3%20%E4%BB%A3%E7%A0%81%E5%A4%8D%E7%94%A8%E6%94%BB%E5%87%BB/">2.3 代码复用攻击</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/2%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E5%86%85%E5%AE%89%E5%85%A8/2.4%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E5%86%85%E5%AE%89%E5%85%A8%E9%98%B2%E5%BE%A1%E6%8A%80%E6%9C%AF/">2.4 计算域内安全防御技术</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">3 计算域间安全</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/3%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E9%97%B4%E5%AE%89%E5%85%A8/3.1%20%E4%BB%8E%E5%8D%95%E7%BA%AF%E7%9A%84%22%E8%AE%A1%E7%AE%97%E6%9C%BA%22%E5%BC%80%E5%A7%8B/">3.1 从单纯的"计算机"开始</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">4 可信安全和故障注入安全</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/4%20%E5%8F%AF%E4%BF%A1%E5%AE%89%E5%85%A8%E5%92%8C%E6%95%85%E9%9A%9C%E6%B3%A8%E5%85%A5%E5%AE%89%E5%85%A8/4.1%20%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E6%9E%84%E5%BB%BA%E5%8F%AF%E4%BF%A1%E8%AE%A1%E7%AE%97/">4.1 从零开始构建可信计算</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">5 侧信道安全和故障注入攻击</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/5%20%E4%BE%A7%E4%BF%A1%E9%81%93%E5%AE%89%E5%85%A8%E5%92%8C%E6%95%85%E9%9A%9C%E6%B3%A8%E5%85%A5%E6%94%BB%E5%87%BB/5.1%20%E4%BB%8E%22%E4%BE%A7%22%E4%BF%A1%E9%81%93%E8%AE%B2%E8%B5%B7/">从"侧"信道讲起</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/5%20%E4%BE%A7%E4%BF%A1%E9%81%93%E5%AE%89%E5%85%A8%E5%92%8C%E6%95%85%E9%9A%9C%E6%B3%A8%E5%85%A5%E6%94%BB%E5%87%BB/5.2%20%E5%B0%8F%E8%AF%95%E7%89%9B%E5%88%80/">小试牛刀</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">8 杂谈</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/8%20%E6%9D%82%E8%B0%88/8.1%20%E5%A6%82%E4%BD%95%E9%87%8F%E5%8C%96CPU%E5%AE%89%E5%85%A8/">8.1 如何量化CPU安全</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">9 反馈与合作</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/9%20%E5%8F%8D%E9%A6%88%E4%B8%8E%E5%90%88%E4%BD%9C/%E5%8F%8D%E9%A6%88%E5%92%8C%E5%90%88%E4%BD%9C/">反馈与合作</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">2 杂谈</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../2%20%E6%9D%82%E8%B0%88/%E9%9D%A2%E5%90%91%E4%BA%BA%E5%81%9A%E6%8A%80%E6%9C%AF/">以人为本做技术</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">3 Old Blogs (before 2020)</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="#">Others</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../Others/2016-09-06-prompt-in-readline/">在readline中使用颜色prompt导致显示bug</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../Others/2016-09-23-syscall/">Linux的虚拟系统调用加速</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../Others/2018-04-11-reserve-register/">如何在编译器中保留特定寄存器</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../Others/2020-02-03-huffman/">Huffman树的推广</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">Security</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../Security/2016-09-09-aslr-linux/">Linux下ASLR概述</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../Security/2016-11-09-cet-shadow_stacks/">Intel官方手册：CET技术预览-影子栈</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../Security/2020-07-27-zipper/">Zipper Stack工作介绍和反思总结</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Riscv</a>
+    <ul class="current">
+                <li class="toctree-l2 current"><a class="reference internal current" href="./">如何在RISC-V中添加一个指令</a>
+    <ul class="current">
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2018-02-18-riscv/">RISC-V 技术概览</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2018-02-19-rocket-0/">Rocket Core源代码笔记——入门</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2018-03-15-riscv-bypass/">Rocket Core源代码笔记——旁路</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2018-11-19-rocket-scoreboard/">Rocket Core源代码笔记——Scoreboard</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2018-11-20-rocket-abbrs/">Rocket Core源代码笔记——缩写</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2018-11-21-riscv-control-flow/">Rocket Core源代码笔记——控制流</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="移动导航栏">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">Readm's Blog</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" alt="文档"></a> &raquo;</li>
+          <li>3 Old Blogs (before 2020) &raquo;</li>
+          <li>Riscv &raquo;</li><li>如何在RISC-V中添加一个指令</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h2 id="risc-v">如何在RISC-V中添加一个指令</h2>
+<p>RISC-V支持指令的扩展，本文介绍在从添加一个完整的指令并且使用需要作出那些改动。（用户态指令）</p>
+<h2 id="_1">步骤</h2>
+<ol>
+<li>确定这一指令的功能：计算加速/安全检查等等</li>
+<li>确定指令的需求：需要读取几个寄存器，是否有立即数参与，最终确定指令类型（R、I、S、U）。参见指令手册2.2章<em>Base Instruction Formats</em>。</li>
+<li>确定指令的编码空间：是否兼容与已有指令，是否是一个新的扩展，找到一个编码空间。</li>
+<li>硬件实现<ol>
+<li>在idecode.scala中添加指令编码，控制线（如果需要）</li>
+<li>选择如何实现这一指令：RoCC指令添加，Rocket核心中添加或者自己增加一个单独的核心。</li>
+</ol>
+</li>
+<li>汇编器实现<ol>
+<li>在gnu工具链中添加汇编器的识别</li>
+<li>在gnu工具链中添加反汇编识别</li>
+</ol>
+</li>
+<li>在编译器中实现<ol>
+<li>如何在编译器中使用这个新的指令</li>
+</ol>
+</li>
+</ol>
+<h2 id="_2">确定指令功能、需求和实现方式</h2>
+<p>确定指令需求是添加指令的第一步，如果指令设计有问题，之后的实现肯定遭遇各种问题。首先要思考以下问题：</p>
+<ul>
+<li>为什么要添加新的指令？<ul>
+<li>用于加速：能够有多少加速效果？<ul>
+<li>用RoCC指令本身就会因为无法使用旁路等机制减慢，要综合考虑加速的得失。</li>
+<li>用原有指令来组成这一功能需要多少条指令？加速的效果明显么？</li>
+<li>是否需要访存，是否需要从Cache中单独建立通路？</li>
+</ul>
+</li>
+<li>用于添加功能：<ul>
+<li>添加的功能是什么？</li>
+<li>这个功能需要哪些操作数，是否和CPU原有流水和功能有冲突？</li>
+<li>一个指令只有64bit，除去opcode的部分用于指定读写寄存器和立即数，是否够用？（等价于选用什么指令类型，如果不是规范的指令类型会在指定寄存器和立即数上更加复杂）<ul>
+<li>每个寄存器需要5bit</li>
+<li>在核心中每条指令仅有<strong>两个读寄存器</strong>和<strong>一个写寄存器</strong>，超过这个数量会变得复杂。</li>
+</ul>
+</li>
+<li>RoCC不能够进行控制转移（修改PC）等修改，在核心中更改的代价是否过高？</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>硬件上如何处理这个指令？Rocket Core对于一般的指令自己处理，乘除法交给div模块处理，浮点交给fpu处理，定制指令交过RoCC模块处理。<ul>
+<li>RoCC是标准的扩展指令接口，经典的例子是用于sha算法加密等，这种方法优点是实现简单，完全自主，但效率比较低，不能应用旁路等。适合如下的指令：<ul>
+<li>输入方法简单</li>
+<li>运算本身复杂</li>
+<li>与其他指令相关性小</li>
+<li>不产生控制流转移</li>
+</ul>
+</li>
+<li>直接在Rocket Core中添加功能是可以效率很高的，但问题是比较复杂，你需要考虑五级流水中所有的问题。如果你的期望指令有如下的特性，那更适合直接在Rocket Core中修改：<ul>
+<li>运算简单</li>
+<li>经常与前后指令产生旁路</li>
+<li>产生控制转移</li>
+<li>产生中断/异常</li>
+</ul>
+</li>
+<li>当然，也可以像fpu一样，自己定义接口自己写，但这样一般更加适合直接用RoCC，包括定制的RoCC接口。</li>
+</ul>
+</li>
+</ul>
+<h2 id="_3">确定指令的编码</h2>
+<p>你需要考虑如下问题：</p>
+<ul>
+<li>是否要建立一个新的Extension？参见指令手册21章<em>Extending RISC-V</em></li>
+<li>指令的格式是什么样的，包括几个读写寄存器和立即数？指令手册2.2章<em>Base Instruction Formats</em></li>
+<li>确定编码后，在<code>rocket-chip/src/main/scala/rocket/instructions.scala</code>中写入你自己的指令。其中能够确定的决定指令的部分用二进制表示，表示寄存器/立即数的非确定部分用"?"表示。这样硬件上就可以给你的指令分配了一个指令空间。</li>
+<li>确定编码后，在<code>$RISCV/riscv-gnu-toolchain/riscv-binutils-gdb/opcodes/riscv-opc.c</code>中添加你的指令和格式，统一指令的不同格式（省略等）必须相邻。</li>
+<li>在<code>$RISCV/riscv-gnu-toolchain/riscv-binutils-gdb/include/opcode/riscv-opc.h</code>中写入你的指令mask和经过mask后的match，以及格式。如果你看不懂mask和match，你应该考虑一下你是否适合干这行。</li>
+<li>完成上述两条，你在汇编器中就给你的新指令占据了一个指令空间。分别编译硬件部分和软件部分确定你的编码空间是不冲突的。</li>
+</ul>
+<h2 id="_4">确定控制线</h2>
+<p>一个指令在Rocke中被如何处理多数取决于decode阶段如何对这一指令解码，解码的结果是若干个控制线，这些解码表在<code>rocket-chip/src/main/scala/rocket/idecode.scala</code>中。这一文件中先定义了所有的控制线，然后定义了每个指令对应的控制线的解码结果。其中部分是<code>X</code>表示这个控制线可以是任意值。在Rocket Core中，id_ctrl/ex_ctrl/mem_ctrl/wb_ctrl就是控制线的集合，可以方便的调用任意阶段的指令解码后的控制线。</p>
+<h3 id="rocc">使用RoCC时的控制线设计</h3>
+<p>如果使用RoCC来处理新的指令，那么控制线基本不需要改动，因为控制线中的rocc位为真的话，Rocket Core直接将这个指令转发给RoCC处理。你只需要将读写寄存器相关的控制线确定好即可。</p>
+<h3 id="rocket-core">使用Rocket Core时的控制线设计</h3>
+<p>在Rocket Core中处理新指令时，最简单分辨你的新指令和旧指令的方法就是添加新的控制线。添加的控制线在所有旧指令中为假，在你的新指令中为真（亦或相反）。在各级流水处理时可以直接调用这条控制线来设计逻辑。</p>
+<p>其余的控制线你仍然需要了解其意义，因为这决定了在Rocket Core中，如何读取和写入寄存器，是否调用加法器和乘法器等等，确保你认识每一条控制线和它的功能，再决定你的指令如何解码。</p>
+<p>解码的逻辑是自动生成的，你无需关心。</p>
+<h2 id="_5">硬件实现</h2>
+<h3 id="rocc_1">RoCC的硬件实现</h3>
+<p>RoCC的硬件实现相对比较规范，你可以先看懂教程（忘了链接）。RoCC中有一个router，RoCC指令首先被发往这个router，router决定这一指令由哪个核心来进行处理。</p>
+<p>简单的说，你需要实现一个自己的核心，专门处理自己的指令，并在RoCC router中识别并转发给你的核心。当计算完成后，结果返回给Rocket Core。</p>
+<p>在这一实现中，你的实现方法是任意的，周期数也没有明确的要求，你可以随心所欲地设计自己的逻辑，尽快地得出结果并返回。</p>
+<h3 id="rocket-core_1">Rocket Core的硬件实现</h3>
+<p>如果你想在Rocket Core中实现，那么必须看懂<code>rocket-chip/src/main/scala/rocket/rocket.scala</code>。如何实现你所需的逻辑，需要明确的设计，和推敲。必须不影响其他指令的正常执行。这一方法比较麻烦，没办法直接在文章中说清。</p>
+<h2 id="_6">汇编和反汇编实现</h2>
+<p>在决定编码的阶段，我们说过了需要改动<code>$RISCV/riscv-gnu-toolchain/riscv-binutils-gdb/opcodes/riscv-opc.c</code>和<code>$RISCV/riscv-gnu-toolchain/riscv-binutils-gdb/include/opcode/riscv-opc.h</code>两个文件。改动正确之后，汇编器可以正确的识别新的指令并编码为二进制。幸运的是，objdump也直接可以识别新的指令。</p>
+<p>反汇编器其实还有一个，就是<code>spike-disas</code>，也就是在硬件模拟的output中负责处理反汇编的小程序。这个反汇编器如何改，不知道。</p>
+<h2 id="_7">编译器如何使用这一指令</h2>
+<p>至此，你的新的指令已经可以被汇编器汇编，被硬件处理了，剩下的只剩如何在编译器中使用你的指令了。</p>
+<p>然而这可能是所有步骤中最复杂的。</p>
+<h3 id="gcc">gcc中</h3>
+<p>gcc中可能反而比较简单，因为gcc中经常直接使用字符串作为编译器的汇编结果输出。</p>
+<h3 id="llvm">LLVM中</h3>
+<p>LLVM中相对麻烦一些，你需要知道如何在后端中加入这个新指令，并在MIR中设置好何时调用这一指令。</p>
+<p>总之，在编译器中如何使用这个指令是十分复杂的。</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="页脚导航">
+        <a href="../../Security/2020-07-27-zipper/" class="btn btn-neutral float-left" title="Zipper Stack工作介绍和反思总结"><span class="icon icon-circle-arrow-left"></span> 上一张</a>
+        <a href="../2018-02-18-riscv/" class="btn btn-neutral float-right" title="RISC-V 技术概览">下一张 <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  用<a href="https://www.mkdocs.org/">MkDocs</a>构建，使用<a href="https://readthedocs.org">Read the Docs</a>提供的<a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>。
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="版本">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../../Security/2020-07-27-zipper/" style="color: #fcfcfc">&laquo; 上一张</a></span>
+    
+    
+      <span><a href="../2018-02-18-riscv/" style="color: #fcfcfc">下一张 &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '../../..';</script>
+    <script src="../../../js/theme_extra.js" defer></script>
+    <script src="../../../js/theme.js" defer></script>
+      <script src="../../../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>

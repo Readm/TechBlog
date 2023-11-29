@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh_Hans_CN" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Rocket Core源代码笔记——控制流 - Readm's Blog</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+        <link href="../../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Rocket Core\u6e90\u4ee3\u7801\u7b14\u8bb0\u2014\u2014\u63a7\u5236\u6d41";
+        var mkdocs_page_input_path = "3 Old Blogs (before 2020)/riscv/2018-11-21-riscv-control-flow.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <script src="../../../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-ET7BC0JY44"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-ET7BC0JY44');
+      </script>
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> Readm's Blog
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="搜索文档" title="在此输入需要搜索的内容" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航栏">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../About/">About</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">1 漫谈CPU安全</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="#">0 引言</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/0%20%E5%BC%95%E8%A8%80/0%20%E5%BC%95%E8%A8%80/">0 引言</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">1 通用知识</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/1%20%E9%80%9A%E7%94%A8%E7%9F%A5%E8%AF%86/1.1%20%E4%BB%80%E4%B9%88%E6%98%AFCPU/">1.1 什么是CPU</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/1%20%E9%80%9A%E7%94%A8%E7%9F%A5%E8%AF%86/1.2%20CPU%E5%AE%89%E5%85%A8%E5%8C%85%E5%90%AB%E4%BB%80%E4%B9%88/">1.2 CPU安全包含什么</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/1%20%E9%80%9A%E7%94%A8%E7%9F%A5%E8%AF%86/1.3%20%E5%A8%81%E8%83%81%E6%A8%A1%E5%9E%8B%E5%92%8C%E6%94%BB%E5%87%BB%E5%90%91%E9%87%8F/">1.3 威胁模型和攻击向量</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">2 计算域内安全</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/2%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E5%86%85%E5%AE%89%E5%85%A8/2.1%20%E4%BB%8E%E6%8E%A7%E5%88%B6%E6%B5%81%E5%8A%AB%E6%8C%81%E6%94%BB%E5%87%BB%E8%AE%B2%E8%B5%B7/">2.1 从控制流劫持攻击讲起</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/2%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E5%86%85%E5%AE%89%E5%85%A8/2.2%20%E5%8C%BA%E5%88%86%E6%95%B0%E6%8D%AE%E4%B8%8E%E4%BB%A3%E7%A0%81/">2.2 区分数据与代码</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/2%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E5%86%85%E5%AE%89%E5%85%A8/2.3%20%E4%BB%A3%E7%A0%81%E5%A4%8D%E7%94%A8%E6%94%BB%E5%87%BB/">2.3 代码复用攻击</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/2%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E5%86%85%E5%AE%89%E5%85%A8/2.4%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E5%86%85%E5%AE%89%E5%85%A8%E9%98%B2%E5%BE%A1%E6%8A%80%E6%9C%AF/">2.4 计算域内安全防御技术</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">3 计算域间安全</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/3%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E9%97%B4%E5%AE%89%E5%85%A8/3.1%20%E4%BB%8E%E5%8D%95%E7%BA%AF%E7%9A%84%22%E8%AE%A1%E7%AE%97%E6%9C%BA%22%E5%BC%80%E5%A7%8B/">3.1 从单纯的"计算机"开始</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">4 可信安全和故障注入安全</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/4%20%E5%8F%AF%E4%BF%A1%E5%AE%89%E5%85%A8%E5%92%8C%E6%95%85%E9%9A%9C%E6%B3%A8%E5%85%A5%E5%AE%89%E5%85%A8/4.1%20%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E6%9E%84%E5%BB%BA%E5%8F%AF%E4%BF%A1%E8%AE%A1%E7%AE%97/">4.1 从零开始构建可信计算</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">5 侧信道安全和故障注入攻击</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/5%20%E4%BE%A7%E4%BF%A1%E9%81%93%E5%AE%89%E5%85%A8%E5%92%8C%E6%95%85%E9%9A%9C%E6%B3%A8%E5%85%A5%E6%94%BB%E5%87%BB/5.1%20%E4%BB%8E%22%E4%BE%A7%22%E4%BF%A1%E9%81%93%E8%AE%B2%E8%B5%B7/">从"侧"信道讲起</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/5%20%E4%BE%A7%E4%BF%A1%E9%81%93%E5%AE%89%E5%85%A8%E5%92%8C%E6%95%85%E9%9A%9C%E6%B3%A8%E5%85%A5%E6%94%BB%E5%87%BB/5.2%20%E5%B0%8F%E8%AF%95%E7%89%9B%E5%88%80/">小试牛刀</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">8 杂谈</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/8%20%E6%9D%82%E8%B0%88/8.1%20%E5%A6%82%E4%BD%95%E9%87%8F%E5%8C%96CPU%E5%AE%89%E5%85%A8/">8.1 如何量化CPU安全</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">9 反馈与合作</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/9%20%E5%8F%8D%E9%A6%88%E4%B8%8E%E5%90%88%E4%BD%9C/%E5%8F%8D%E9%A6%88%E5%92%8C%E5%90%88%E4%BD%9C/">反馈与合作</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">2 杂谈</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../2%20%E6%9D%82%E8%B0%88/%E9%9D%A2%E5%90%91%E4%BA%BA%E5%81%9A%E6%8A%80%E6%9C%AF/">以人为本做技术</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">3 Old Blogs (before 2020)</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="#">Others</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../Others/2016-09-06-prompt-in-readline/">在readline中使用颜色prompt导致显示bug</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../Others/2016-09-23-syscall/">Linux的虚拟系统调用加速</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../Others/2018-04-11-reserve-register/">如何在编译器中保留特定寄存器</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../Others/2020-02-03-huffman/">Huffman树的推广</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">Security</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../Security/2016-09-09-aslr-linux/">Linux下ASLR概述</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../Security/2016-11-09-cet-shadow_stacks/">Intel官方手册：CET技术预览-影子栈</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../Security/2020-07-27-zipper/">Zipper Stack工作介绍和反思总结</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Riscv</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../2018-02-18-riscv-addins/">如何在RISC-V中添加一个指令</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2018-02-18-riscv/">RISC-V 技术概览</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2018-02-19-rocket-0/">Rocket Core源代码笔记——入门</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2018-03-15-riscv-bypass/">Rocket Core源代码笔记——旁路</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2018-11-19-rocket-scoreboard/">Rocket Core源代码笔记——Scoreboard</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2018-11-20-rocket-abbrs/">Rocket Core源代码笔记——缩写</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="./">Rocket Core源代码笔记——控制流</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#jump-or-in-order">Jump or In Order?</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#jump-when-and-where">Jump? When and Where?</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#take_pc">take_pc</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#imemreqbitpc">imem.req.bit.pc</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#others">Others</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="移动导航栏">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">Readm's Blog</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" alt="文档"></a> &raquo;</li>
+          <li>3 Old Blogs (before 2020) &raquo;</li>
+          <li>Riscv &raquo;</li><li>Rocket Core源代码笔记——控制流</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="control-flow-in-rocket-core">Control Flow in Rocket Core</h1>
+<p>Today, we talk about the control flow instructions in Rocket Core, mainly the jumps. I'm not familiar with the CSR and other part, so we only talk the normal jump instructions. This part differs in different version, so please refer to your version.</p>
+<h2 id="jump-or-in-order">Jump or In Order?</h2>
+<p>Normally, the decode stage use the output of <code>ibuf</code> as the result of fetch stage. However, the <code>ibuf</code> read the instructions from <code>icache</code> (instruction cache). See <a href="/docs/rocket-core.pdf">Overview of Rocker Pipeline</a>. When there is no jump, <code>ibuf</code> will fetch the next instruction orderly from the <code>imem</code>.</p>
+<p>If a jump comes, (or other situations that the pipeline do not want next instruction) a <code>kill</code> is send to the <code>ibuf</code>, which means clean instruction in the buffer, and read the new respond from the <code>imem</code>. The pc of the new instruction (where jump to) is in the request of the <code>imem</code>.</p>
+<pre><code>  io.imem.req.bits.pc :=
+    Mux(wb_xcpt || csr.io.eret, csr.io.evec, // exception or [m|s]ret
+    Mux(replay_wb,              wb_reg_pc,   // replay
+                                mem_npc))    // flush or branch misprediction
+</code></pre>
+<p>Here, inclueds all the possible of control flow alter. We are not talking about the exception/[m|s]ret/replay. The normal jumps, will take the last line, i.e., the mem_npc. Remember that the call/ret are special jumps.</p>
+<h2 id="jump-when-and-where">Jump? When and Where?</h2>
+<p>Keys to anaylyze when and where to jump, are <code>take_pc</code> and <code>io.imem.req.bit.pc</code>. You can glance at <a href="/docs/rocket-core.pdf">Overview</a> to get a general idea. </p>
+<h3 id="take_pc">take_pc</h3>
+<p>As you can see in the <a href="/docs/rocket-core.pdf">Overview</a>, the <code>take_pc</code> leads to two results: one is enable the <code>imem.req</code>, another is kill the <code>ibuf</code>. That's comprehensible. If there is a jump, we need to read the new instructions and abandon the instruction buffer.</p>
+<p>What will enable <code>take_pc</code>, <code>take_pc</code> = <code>take_pc_mem_wb</code> in current version. In the history, there was a <code>take_pc_id</code>, this will handle the jal instructions in the decode stage. But now, it was handled in frontend---faster. So now, <code>take_pc</code> means <code>take_pc_mem</code> or <code>take_pc_wb</code>.</p>
+<p>If you trace from the <code>take_pc_mem</code>, you will find it will handle the 1) branch was taken 2) jal 3) jalr. The details differ when use BTB or not. So we do not dive into the code.</p>
+<p>From <code>take_pc_wb := replay_wb || wb_xcpt || csr.io.eret || wb_reg_flush_pipe</code> we found that the <code>take_pc_wb</code> comes from 1) replay 2) exceptions 3) eret 4) flush pipe. Each of them is complicated, so we will disscuss them in the future.</p>
+<h3 id="imemreqbitpc">imem.req.bit.pc</h3>
+<p>As we mentioned before, the <code>imem.req.bits.pc</code> comes from <code>mem_npc</code> in jumps. <code>mem_npc</code> comes from two case: </p>
+<ul>
+<li>If it's a <code>jalr</code>, <code>mem_pc</code> equals <code>mem_reg_wdata</code>, which comes from the ALU.</li>
+<li>If it's a branch/<code>jal</code>, <code>mem_pc</code> equals <code>mem_br_target</code>, which is <code>mem_reg_pc</code> added an offset.</li>
+</ul>
+<p>This is reasonable: <code>jalr</code> uses the address in the register and use ALU, while <code>jal</code> and branch use the current pc and an offset.</p>
+<h3 id="others">Others</h3>
+<p>For replay/exceptions, I may discuss them in the future. But CSR is not in my plan.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="页脚导航">
+        <a href="../2018-11-20-rocket-abbrs/" class="btn btn-neutral float-left" title="Rocket Core源代码笔记——缩写"><span class="icon icon-circle-arrow-left"></span> 上一张</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  用<a href="https://www.mkdocs.org/">MkDocs</a>构建，使用<a href="https://readthedocs.org">Read the Docs</a>提供的<a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>。
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="版本">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../2018-11-20-rocket-abbrs/" style="color: #fcfcfc">&laquo; 上一张</a></span>
+    
+    
+  </span>
+</div>
+    <script>var base_url = '../../..';</script>
+    <script src="../../../js/theme_extra.js" defer></script>
+    <script src="../../../js/theme.js" defer></script>
+      <script src="../../../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>

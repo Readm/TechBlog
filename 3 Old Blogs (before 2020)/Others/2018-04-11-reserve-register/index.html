@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh_Hans_CN" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>如何在编译器中保留特定寄存器 - Readm's Blog</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+        <link href="../../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "\u5982\u4f55\u5728\u7f16\u8bd1\u5668\u4e2d\u4fdd\u7559\u7279\u5b9a\u5bc4\u5b58\u5668";
+        var mkdocs_page_input_path = "3 Old Blogs (before 2020)/Others/2018-04-11-reserve-register.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <script src="../../../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-ET7BC0JY44"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-ET7BC0JY44');
+      </script>
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> Readm's Blog
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="搜索文档" title="在此输入需要搜索的内容" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航栏">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../About/">About</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">1 漫谈CPU安全</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="#">0 引言</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/0%20%E5%BC%95%E8%A8%80/0%20%E5%BC%95%E8%A8%80/">0 引言</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">1 通用知识</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/1%20%E9%80%9A%E7%94%A8%E7%9F%A5%E8%AF%86/1.1%20%E4%BB%80%E4%B9%88%E6%98%AFCPU/">1.1 什么是CPU</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/1%20%E9%80%9A%E7%94%A8%E7%9F%A5%E8%AF%86/1.2%20CPU%E5%AE%89%E5%85%A8%E5%8C%85%E5%90%AB%E4%BB%80%E4%B9%88/">1.2 CPU安全包含什么</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/1%20%E9%80%9A%E7%94%A8%E7%9F%A5%E8%AF%86/1.3%20%E5%A8%81%E8%83%81%E6%A8%A1%E5%9E%8B%E5%92%8C%E6%94%BB%E5%87%BB%E5%90%91%E9%87%8F/">1.3 威胁模型和攻击向量</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">2 计算域内安全</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/2%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E5%86%85%E5%AE%89%E5%85%A8/2.1%20%E4%BB%8E%E6%8E%A7%E5%88%B6%E6%B5%81%E5%8A%AB%E6%8C%81%E6%94%BB%E5%87%BB%E8%AE%B2%E8%B5%B7/">2.1 从控制流劫持攻击讲起</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/2%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E5%86%85%E5%AE%89%E5%85%A8/2.2%20%E5%8C%BA%E5%88%86%E6%95%B0%E6%8D%AE%E4%B8%8E%E4%BB%A3%E7%A0%81/">2.2 区分数据与代码</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/2%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E5%86%85%E5%AE%89%E5%85%A8/2.3%20%E4%BB%A3%E7%A0%81%E5%A4%8D%E7%94%A8%E6%94%BB%E5%87%BB/">2.3 代码复用攻击</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/2%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E5%86%85%E5%AE%89%E5%85%A8/2.4%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E5%86%85%E5%AE%89%E5%85%A8%E9%98%B2%E5%BE%A1%E6%8A%80%E6%9C%AF/">2.4 计算域内安全防御技术</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">3 计算域间安全</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/3%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E9%97%B4%E5%AE%89%E5%85%A8/3.1%20%E4%BB%8E%E5%8D%95%E7%BA%AF%E7%9A%84%22%E8%AE%A1%E7%AE%97%E6%9C%BA%22%E5%BC%80%E5%A7%8B/">3.1 从单纯的"计算机"开始</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">4 可信安全和故障注入安全</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/4%20%E5%8F%AF%E4%BF%A1%E5%AE%89%E5%85%A8%E5%92%8C%E6%95%85%E9%9A%9C%E6%B3%A8%E5%85%A5%E5%AE%89%E5%85%A8/4.1%20%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E6%9E%84%E5%BB%BA%E5%8F%AF%E4%BF%A1%E8%AE%A1%E7%AE%97/">4.1 从零开始构建可信计算</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">5 侧信道安全和故障注入攻击</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/5%20%E4%BE%A7%E4%BF%A1%E9%81%93%E5%AE%89%E5%85%A8%E5%92%8C%E6%95%85%E9%9A%9C%E6%B3%A8%E5%85%A5%E6%94%BB%E5%87%BB/5.1%20%E4%BB%8E%22%E4%BE%A7%22%E4%BF%A1%E9%81%93%E8%AE%B2%E8%B5%B7/">从"侧"信道讲起</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/5%20%E4%BE%A7%E4%BF%A1%E9%81%93%E5%AE%89%E5%85%A8%E5%92%8C%E6%95%85%E9%9A%9C%E6%B3%A8%E5%85%A5%E6%94%BB%E5%87%BB/5.2%20%E5%B0%8F%E8%AF%95%E7%89%9B%E5%88%80/">小试牛刀</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">8 杂谈</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/8%20%E6%9D%82%E8%B0%88/8.1%20%E5%A6%82%E4%BD%95%E9%87%8F%E5%8C%96CPU%E5%AE%89%E5%85%A8/">8.1 如何量化CPU安全</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">9 反馈与合作</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/9%20%E5%8F%8D%E9%A6%88%E4%B8%8E%E5%90%88%E4%BD%9C/%E5%8F%8D%E9%A6%88%E5%92%8C%E5%90%88%E4%BD%9C/">反馈与合作</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">2 杂谈</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../2%20%E6%9D%82%E8%B0%88/%E9%9D%A2%E5%90%91%E4%BA%BA%E5%81%9A%E6%8A%80%E6%9C%AF/">以人为本做技术</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">3 Old Blogs (before 2020)</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Others</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../2016-09-06-prompt-in-readline/">在readline中使用颜色prompt导致显示bug</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2016-09-23-syscall/">Linux的虚拟系统调用加速</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="./">如何在编译器中保留特定寄存器</a>
+    <ul class="current">
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2020-02-03-huffman/">Huffman树的推广</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">Security</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../Security/2016-09-09-aslr-linux/">Linux下ASLR概述</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../Security/2016-11-09-cet-shadow_stacks/">Intel官方手册：CET技术预览-影子栈</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../Security/2020-07-27-zipper/">Zipper Stack工作介绍和反思总结</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">Riscv</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../riscv/2018-02-18-riscv-addins/">如何在RISC-V中添加一个指令</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../riscv/2018-02-18-riscv/">RISC-V 技术概览</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../riscv/2018-02-19-rocket-0/">Rocket Core源代码笔记——入门</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../riscv/2018-03-15-riscv-bypass/">Rocket Core源代码笔记——旁路</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../riscv/2018-11-19-rocket-scoreboard/">Rocket Core源代码笔记——Scoreboard</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../riscv/2018-11-20-rocket-abbrs/">Rocket Core源代码笔记——缩写</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../riscv/2018-11-21-riscv-control-flow/">Rocket Core源代码笔记——控制流</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="移动导航栏">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">Readm's Blog</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" alt="文档"></a> &raquo;</li>
+          <li>3 Old Blogs (before 2020) &raquo;</li>
+          <li>Others &raquo;</li><li>如何在编译器中保留特定寄存器</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <p>最近的工作中，设计中需要一个专用的寄存器，仅供我自己使用。在现有编译器和库中当然没有预留，这需要我们更改编译器和库。</p>
+<h2 id="_1">目的</h2>
+<p>在目前的X86寄存器中，选取若干寄存器作为专用寄存器，保留起来不被其他功能使用。</p>
+<h2 id="_2">前置知识</h2>
+<ul>
+<li>调用惯例</li>
+<li>X86寄存器结构</li>
+<li>寄存器分配算法</li>
+</ul>
+<h3 id="_3">调用惯例</h3>
+<p>在不同的操作系统中有不同的二进制接口（ABI），最主要就是调用惯例。调用惯例中规定了在函数调用中，哪些寄存器用于传递参数，哪些寄存器保持不变(callee saved registers/Preserved Registers)，哪些寄存器会被改变(caller saved registers/Scratch Registers)。这些信息对我们很重要，因为<strong>传递参数的寄存器是无法预留的，除非你改动整个系统的ABI</strong>。</p>
+<p>对于其他寄存器，是否保持不变就看你的需求了：这取决于你如何计划库对你的寄存器的操作。</p>
+<p>一般，你的编译器只编译你的源文件，而库文件直接使用共享库。这意味着你的程序会调用到共享库，如果你选定了Preserved Register，那么库文件就不会改动你的寄存器（这可以使你直接做到共享库的兼容而不需要重新编译库）；反之，你的寄存器会被库文件破坏。</p>
+<p>但值得注意的是：并不总是从你的源文件调用库再返回的。类似于：</p>
+<pre><code>your_fun0() --call--&gt; your_fun1() --call--&gt; lib_fun0() --call--&gt; lib_fun1()
+</code></pre>
+<p>一些情况下，也会出现交叉的调用：</p>
+<pre><code>your_fun0() --call--&gt; lib_fun0() --call--&gt; your_fun1() --call--&gt; lib_fun1()
+</code></pre>
+<p>因为库不改动你的寄存器只是对于调用者说的，所以对于your_fun0来说，lib_fun0()会保持所有Preserved Registers，但在其调用your_func1()时，Preserved Registers仍然可能是被它更改的（在他退出时恢复之前）。</p>
+<p>所以，<strong>最保险的做法还是无论是否是Scratch Registers，都重新编译库来保证库不使用它们。</strong></p>
+<p>查询这些信息，可以参考<a href="http://www.agner.org/optimize/calling_conventions.pdf">Call Conventions</a> <a href="/docs/calling_conventions.pdf">(本站备份)</a>。</p>
+<h3 id="x86">X86寄存器结构</h3>
+<p>X86的寄存器结构比较复杂，不同CPU也不同。这里只是提醒如果你的数据较大，通用寄存器可能难以保存，不妨尝试向量寄存器（XMM，YMM等）这在<a href="https://arxiv.org/abs/1408.1451">Cryptographically enforced control flow integrity</a>中有过使用。</p>
+<p>但向量寄存器的缺点在于，难于学习和使用，因为版本不同和用途各异，正确的使用是需要时间学习的。<strong>混用不同版本或者作用域的指令可能得到正确的值，但极大影响性能。</strong></p>
+<h3 id="_4">寄存器分配算法</h3>
+<p>编译器中（LLVM）在编译的前端使用虚拟寄存器来表示变量，只有在后端时才将虚拟寄存器映射到物理寄存器中。我们知道这个过程就足够了，我们需要的是在这个映射过程中，将我们需要的寄存器标记为保留寄存器，不被分配就可以了。</p>
+<p>在<a href="https://llvm.org/docs/WritingAnLLVMBackend.html#defining-a-register-class">文档</a>这一节的最后提到，只要将寄存器标记为reserved，一般情况下就不会被使用到，在我们的观察中也基本是这样的。即使使用到，也会马上帮你恢复回来。</p>
+<h2 id="llvm">LLVM中预留</h2>
+<p>假设你通过上面的知识选定好了使用哪个寄存器来预留，我们就可以开始在LLVM中预留寄存器了。</p>
+<p>在LLVM中预留寄存器非常简单，在文件<code>/lib/Target/X86/X86RegisterInfo.cpp</code>中：</p>
+<pre><code>BitVector X86RegisterInfo::getReservedRegs(const MachineFunction &amp;MF) const {
+    ......
+}
+</code></pre>
+<p>这里有各种Reserved的寄存器。包括简单的</p>
+<pre><code>  // Mark the segment registers as reserved.
+  Reserved.set(X86::CS);
+  Reserved.set(X86::SS);
+  Reserved.set(X86::DS);
+  Reserved.set(X86::ES);
+  Reserved.set(X86::FS);
+  Reserved.set(X86::GS);
+</code></pre>
+<p>和稍微复杂的：</p>
+<pre><code>if (!Is64Bit) {
+    // These 8-bit registers are part of the x86-64 extension even though their
+    // super-registers are old 32-bits.
+    Reserved.set(X86::SIL);
+    Reserved.set(X86::DIL);
+    Reserved.set(X86::BPL);
+    Reserved.set(X86::SPL);
+
+    for (unsigned n = 0; n != 8; ++n) {
+      // R8, R9, ...
+      for (MCRegAliasIterator AI(X86::R8 + n, this, true); AI.isValid(); ++AI)
+        Reserved.set(*AI);
+
+      // XMM8, XMM9, ...
+      for (MCRegAliasIterator AI(X86::XMM8 + n, this, true); AI.isValid(); ++AI)
+        Reserved.set(*AI);
+    }
+  }
+</code></pre>
+<p>这里 MCRegAliasIterator 的部分实际上是将有别名的寄存器都标记为Reserved，请注意这个问题，如果你的寄存器也有别名，也要采用类似的处理。</p>
+<p>这里我们也看到，LLVM在编译X86_32的程序时，仅存在于64位的寄存器reserve起来了。</p>
+<h2 id="llvm_1">LLVM中使用</h2>
+<p>在LLVM中直接使用这些寄存器（不然你预留干嘛），正常的方法应该用Read_register和Write_register的内联函数来做，但尴尬的是我一直没有成功，应该是一些低级错误。</p>
+<p>所以我一直使用的是嵌入汇编的方法，这样并不好，会增加不必要的指令。</p>
+<h2 id="glibc">在Glibc库中预留</h2>
+<p>之后我们来考虑如何避免共享库使用这些寄存器。方法就是重新编译共享库并且使用这些共享库来运行我们的程序。</p>
+<p>为什么是重新编译Glibc？因为它是最常用的，至少，SPEC中使用的都在Glibc中。这对于写论文是足够有效的了，如果你的程序还需要其他的库，那就也重新编译那些库。</p>
+<p>编译的方法非常简单，因为这些库基本都使用gcc编译，而gcc中排除特定寄存器太简单了，例如<code>-ffixed-xmm15</code>就可以将XMM15寄存器排除到编译中。其他的寄存器也是一样的，类似于<code>-ffixed-r12 -ffixed-r13 -ffixed-r14</code>。当然，用于传参的寄存器是不可能避免的。</p>
+<p>如何重新编译和使用Glibc请参照<a href="http://www.gnu.org/software/libc/started.html">官网</a>。这里描述了如何下载和重新编译Glibc的库。我建议使用非安装的方式来使用，避免你的系统中其他程序被你的新的共享库搞崩。</p>
+<p>在Glibc中添加前面的编译选项有两处：</p>
+<ul>
+<li>在源码文件夹中<code>Makeconfig</code> line324:<ul>
+<li>default_cflages中添加上述参数</li>
+</ul>
+</li>
+<li>在Build文件夹中<code>configure.make</code> line 109:<ul>
+<li>CFLAGS中添加上述参数</li>
+</ul>
+</li>
+</ul>
+<p>这样再Make后的库就是满足要求的库了。</p>
+<h2 id="_5">总结</h2>
+<p>到这里，我们就完全预留好了需要的寄存器，如果你没有使用这些寄存器，在库中和你编译的二进制文件中都不会使用到这些寄存器。</p>
+<p>为什么不使用更加优美的方式呢，例如在LLVM中设置一个全局变量并且绑定一个寄存器？</p>
+<p>答案是老子不会，这可能涉及到函数间的寄存器分配，我尝试了一下并没有什么头绪。有人这样实现的话可以告诉我膜拜一下:)</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="页脚导航">
+        <a href="../2016-09-23-syscall/" class="btn btn-neutral float-left" title="Linux的虚拟系统调用加速"><span class="icon icon-circle-arrow-left"></span> 上一张</a>
+        <a href="../2020-02-03-huffman/" class="btn btn-neutral float-right" title="Huffman树的推广">下一张 <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  用<a href="https://www.mkdocs.org/">MkDocs</a>构建，使用<a href="https://readthedocs.org">Read the Docs</a>提供的<a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>。
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="版本">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../2016-09-23-syscall/" style="color: #fcfcfc">&laquo; 上一张</a></span>
+    
+    
+      <span><a href="../2020-02-03-huffman/" style="color: #fcfcfc">下一张 &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '../../..';</script>
+    <script src="../../../js/theme_extra.js" defer></script>
+    <script src="../../../js/theme.js" defer></script>
+      <script src="../../../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>

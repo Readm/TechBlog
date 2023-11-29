@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh_Hans_CN" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Linux的虚拟系统调用加速 - Readm's Blog</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+        <link href="../../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Linux\u7684\u865a\u62df\u7cfb\u7edf\u8c03\u7528\u52a0\u901f";
+        var mkdocs_page_input_path = "3 Old Blogs (before 2020)/Others/2016-09-23-syscall.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <script src="../../../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-ET7BC0JY44"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-ET7BC0JY44');
+      </script>
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> Readm's Blog
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="搜索文档" title="在此输入需要搜索的内容" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航栏">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../About/">About</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">1 漫谈CPU安全</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="#">0 引言</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/0%20%E5%BC%95%E8%A8%80/0%20%E5%BC%95%E8%A8%80/">0 引言</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">1 通用知识</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/1%20%E9%80%9A%E7%94%A8%E7%9F%A5%E8%AF%86/1.1%20%E4%BB%80%E4%B9%88%E6%98%AFCPU/">1.1 什么是CPU</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/1%20%E9%80%9A%E7%94%A8%E7%9F%A5%E8%AF%86/1.2%20CPU%E5%AE%89%E5%85%A8%E5%8C%85%E5%90%AB%E4%BB%80%E4%B9%88/">1.2 CPU安全包含什么</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/1%20%E9%80%9A%E7%94%A8%E7%9F%A5%E8%AF%86/1.3%20%E5%A8%81%E8%83%81%E6%A8%A1%E5%9E%8B%E5%92%8C%E6%94%BB%E5%87%BB%E5%90%91%E9%87%8F/">1.3 威胁模型和攻击向量</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">2 计算域内安全</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/2%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E5%86%85%E5%AE%89%E5%85%A8/2.1%20%E4%BB%8E%E6%8E%A7%E5%88%B6%E6%B5%81%E5%8A%AB%E6%8C%81%E6%94%BB%E5%87%BB%E8%AE%B2%E8%B5%B7/">2.1 从控制流劫持攻击讲起</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/2%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E5%86%85%E5%AE%89%E5%85%A8/2.2%20%E5%8C%BA%E5%88%86%E6%95%B0%E6%8D%AE%E4%B8%8E%E4%BB%A3%E7%A0%81/">2.2 区分数据与代码</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/2%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E5%86%85%E5%AE%89%E5%85%A8/2.3%20%E4%BB%A3%E7%A0%81%E5%A4%8D%E7%94%A8%E6%94%BB%E5%87%BB/">2.3 代码复用攻击</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/2%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E5%86%85%E5%AE%89%E5%85%A8/2.4%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E5%86%85%E5%AE%89%E5%85%A8%E9%98%B2%E5%BE%A1%E6%8A%80%E6%9C%AF/">2.4 计算域内安全防御技术</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">3 计算域间安全</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/3%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E9%97%B4%E5%AE%89%E5%85%A8/3.1%20%E4%BB%8E%E5%8D%95%E7%BA%AF%E7%9A%84%22%E8%AE%A1%E7%AE%97%E6%9C%BA%22%E5%BC%80%E5%A7%8B/">3.1 从单纯的"计算机"开始</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">4 可信安全和故障注入安全</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/4%20%E5%8F%AF%E4%BF%A1%E5%AE%89%E5%85%A8%E5%92%8C%E6%95%85%E9%9A%9C%E6%B3%A8%E5%85%A5%E5%AE%89%E5%85%A8/4.1%20%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E6%9E%84%E5%BB%BA%E5%8F%AF%E4%BF%A1%E8%AE%A1%E7%AE%97/">4.1 从零开始构建可信计算</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">5 侧信道安全和故障注入攻击</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/5%20%E4%BE%A7%E4%BF%A1%E9%81%93%E5%AE%89%E5%85%A8%E5%92%8C%E6%95%85%E9%9A%9C%E6%B3%A8%E5%85%A5%E6%94%BB%E5%87%BB/5.1%20%E4%BB%8E%22%E4%BE%A7%22%E4%BF%A1%E9%81%93%E8%AE%B2%E8%B5%B7/">从"侧"信道讲起</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/5%20%E4%BE%A7%E4%BF%A1%E9%81%93%E5%AE%89%E5%85%A8%E5%92%8C%E6%95%85%E9%9A%9C%E6%B3%A8%E5%85%A5%E6%94%BB%E5%87%BB/5.2%20%E5%B0%8F%E8%AF%95%E7%89%9B%E5%88%80/">小试牛刀</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">8 杂谈</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/8%20%E6%9D%82%E8%B0%88/8.1%20%E5%A6%82%E4%BD%95%E9%87%8F%E5%8C%96CPU%E5%AE%89%E5%85%A8/">8.1 如何量化CPU安全</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">9 反馈与合作</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8/9%20%E5%8F%8D%E9%A6%88%E4%B8%8E%E5%90%88%E4%BD%9C/%E5%8F%8D%E9%A6%88%E5%92%8C%E5%90%88%E4%BD%9C/">反馈与合作</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">2 杂谈</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../2%20%E6%9D%82%E8%B0%88/%E9%9D%A2%E5%90%91%E4%BA%BA%E5%81%9A%E6%8A%80%E6%9C%AF/">以人为本做技术</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">3 Old Blogs (before 2020)</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Others</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../2016-09-06-prompt-in-readline/">在readline中使用颜色prompt导致显示bug</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="./">Linux的虚拟系统调用加速</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#vsyscall">vsyscall阶段</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#vdsovirtual-dynamic-shared-object">vDSO(virtual dynamic shared object)阶段</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#vsyscall_1">对vsyscall的兼容</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#vvar">内核数据的交互[vvar]</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_1">快速系统调用的支持</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_2">细节讨论</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#ubuntu1604-getuidgettimeofday">调用的路径验证（Ubuntu16.04 以getuid和gettimeofday为例，*代表系统调用号赋值）：</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2018-04-11-reserve-register/">如何在编译器中保留特定寄存器</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2020-02-03-huffman/">Huffman树的推广</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">Security</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../Security/2016-09-09-aslr-linux/">Linux下ASLR概述</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../Security/2016-11-09-cet-shadow_stacks/">Intel官方手册：CET技术预览-影子栈</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../Security/2020-07-27-zipper/">Zipper Stack工作介绍和反思总结</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">Riscv</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../riscv/2018-02-18-riscv-addins/">如何在RISC-V中添加一个指令</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../riscv/2018-02-18-riscv/">RISC-V 技术概览</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../riscv/2018-02-19-rocket-0/">Rocket Core源代码笔记——入门</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../riscv/2018-03-15-riscv-bypass/">Rocket Core源代码笔记——旁路</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../riscv/2018-11-19-rocket-scoreboard/">Rocket Core源代码笔记——Scoreboard</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../riscv/2018-11-20-rocket-abbrs/">Rocket Core源代码笔记——缩写</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../riscv/2018-11-21-riscv-control-flow/">Rocket Core源代码笔记——控制流</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="移动导航栏">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">Readm's Blog</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" alt="文档"></a> &raquo;</li>
+          <li>3 Old Blogs (before 2020) &raquo;</li>
+          <li>Others &raquo;</li><li>Linux的虚拟系统调用加速</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="linux">Linux的虚拟系统调用加速</h1>
+<hr />
+<p>Linux中程序的内存maps中会存在以下三个区域：[vsyscall], [vdso], [vvar]. 这些内存都是为了实现虚拟函数调用以加速部分系统调用的。加速的方式是将部分安全的内核代码映射到用户空间，这使得程序可以不进入内核态[^1]直接调用系统调用。</p>
+<p>这一功能的实现经历了两个历史过程：</p>
+<hr />
+<h2 id="vsyscall">vsyscall阶段</h2>
+<p>最初的vsyscall用于实现虚拟系统调用，你现在仍然能够在Linux进程空间中找到这一区域（32bit已经消失），<strong>但值得注意的是，其内容已经和最初的实现不同了</strong>。</p>
+<p>这一阶段主要是将部分内核代码放在vsyscall区域。使得程序（一般通过libc）可以直接调用time_of_day等简单的系统调用，获得加速（具体实现见后文）。</p>
+<p>这一阶段的主要问题是在内存空间中，<strong>vsyscall的地址是固定的</strong>，并不能被地址随机化随机。这意味着如果被攻击者控制了EIP(RIP)，那么这段空间的代码可以为攻击者提供不被随机化的配件，或者直接调用这些系统调用。为了解决这一问题，新的vdso实现方式出现了。</p>
+<hr />
+<h2 id="vdsovirtual-dynamic-shared-object">vDSO(virtual dynamic shared object)阶段</h2>
+<p>vdso区域与vsyscall的功能几乎没有区别，最主要的区别在于vDSO地址可以被ASLR随机化。新的版本的库和程序应该放弃vsyscall方式。</p>
+<h3 id="vsyscall_1">对vsyscall的兼容</h3>
+<p>由于vsyscall的地址空间为固定的，所以部分程序直接用硬编码地址使用了其中的系统调用。为了兼容性考虑，vsyscall中还可以实现这些功能，但是方式有所变化：</p>
+<p>新的vsyscall在原来的入口处使用了特殊的trap指令，这些trap指令将程序捕获到内核态并模拟原来的虚拟系统调用。（是的，内核态模拟模拟内核态的虚拟系统调用，因为原来的虚拟系统调用上下文关系与直接系统调用不同。）这样的结果是其实现在使用vsyscall会使性能有部分下降，不如vdso方式迅速，但兼容了以前所有的功能，也解决了安全性问题。</p>
+<hr />
+<h2 id="vvar">内核数据的交互[vvar]</h2>
+<p>系统调用所需要读取的数据属于内核态，这一权限如何解决的呢？
+内核通过映射到用户空间的一段只读区域来返回内核数据，这就是内存中的[vvar]区域。</p>
+<p>历史上讲，可以确定的是vvar也是考虑安全性后加入的一种方式。但是其与vdso是否是同时加入的，没有继续详细的调研。</p>
+<hr />
+<h2 id="_1">快速系统调用的支持</h2>
+<p>快速系统调用指的是sysenter/sysexit相对于int 0x80而言。简单来说，sysenter/sysexit不会像int 0x80一样维护复杂的上下文信息，没有特权级别检查和压栈的操作，所以速度快了很多。<strong>Linux对于快速系统调用的支持就体现在虚拟系统调用上。</strong></p>
+<p><strong>注意：x64架构中都使用syscall指令，并没有这种区别。</strong></p>
+<p>简单的sysenter和sysexit概述：</p>
+<p>调用 sysenter/sysexit 指令地址的跳转是通过设置一组特殊寄存器实现的。这些寄存器包括：</p>
+<ul>
+<li>SYSENTER_CS_MSR － 用于指定要执行的 Ring 0 代码的代码段选择符，由它还能得出目标 Ring 0 所用堆栈段的段选择符；</li>
+<li>SYSENTER_EIP_MSR － 用于指定要执行的 Ring 0 代码的起始地址；</li>
+<li>SYSENTER_ESP_MSR－用于指定要执行的Ring 0代码所使用的栈指针</li>
+</ul>
+<p>在 Ring3 的代码调用了 sysenter 指令之后，CPU 会做出如下的操作：</p>
+<pre><code>1． 将 SYSENTER_CS_MSR 的值装载到 cs 寄存器
+2． 将 SYSENTER_EIP_MSR 的值装载到 eip 寄存器
+3． 将 SYSENTER_CS_MSR 的值加 8（Ring0 的堆栈段描述符）装载到 ss 寄存器。
+4． 将 SYSENTER_ESP_MSR 的值装载到 esp 寄存器
+5． 将特权级切换到 Ring0
+6． 如果 EFLAGS 寄存器的 VM 标志被置位，则清除该标志
+7． 开始执行指定的 Ring0 代码
+</code></pre>
+<p>在 Ring0 代码执行完毕，调用 SYSEXIT 指令退回 Ring3 时，CPU 会做出如下操作：</p>
+<pre><code>1． 将 SYSENTER_CS_MSR 的值加 16（Ring3 的代码段描述符）装载到 cs 寄存器
+2． 将寄存器 edx 的值装载到 eip 寄存器
+3． 将 SYSENTER_CS_MSR 的值加 24（Ring3 的堆栈段描述符）装载到 ss 寄存器
+4． 将寄存器 ecx 的值装载到 esp 寄存器
+5． 将特权级切换到 Ring3
+6． 继续执行 Ring3 的代码
+</code></pre>
+<p>由此可知，在调用 SYSENTER 进入 Ring0 之前，一定需要通过 wrmsr 指令设置好 Ring0 代码的相关信息，在调用 SYSEXIT 之前，还要保证寄存器edx、ecx 的正确性。</p>
+<p>在 Intel 的手册中，还提到了 sysenter/sysexit 和 int n/iret 指令的一个区别，那就是 sysenter/sysexit 指令并不成对，sysenter 指令并不会把 SYSEXIT 所需的返回地址压栈，sysexit 返回的地址并不一定是 sysenter 指令的下一个指令地址。</p>
+<p>具体参考<a href="http://www.ibm.com/developerworks/cn/linux/kernel/l-k26ncpu/index.html">Linux 2.6 对新型 CPU 快速系统调用的支持</a></p>
+<hr />
+<h2 id="_2">细节讨论</h2>
+<p><strong>Question</strong>：32位和64位下的区别汇总：</p>
+<p><strong>Answer</strong>：</p>
+<ul>
+<li>64位下都为syscall，不同的虚拟系统调用采用不同的函数（在vdso中的路径）。</li>
+<li>32位下普通系统调用为int，快速系统调用为sysenter。</li>
+<li>32位下：
+    静态链接入口为<code>_dl_sysinfo</code>(<code>__kernel_vsyscall</code>)，并且这一地址是加载程序后才指向vdso的。
+    动态链接入口为<code>%gs:0x10</code>。</li>
+<li>64位下有[vsyscall]内存段而32位没有。</li>
+</ul>
+<p><strong>Question</strong>： 快速系统调用时内核执行的代码在用户空间么？</p>
+<p><strong>Answer</strong>：不在，虚拟系统调用只是使用快速系统调用的一段入口。没有实际运行的代码。样例：</p>
+<pre><code class="language-assamble">#32bit 静态/动态都将指向这段代码 _dl_sysinfo
+0xffffe400:     push   %ecx
+0xffffe401:     push   %edx
+0xffffe402:     push   %ebp
+0xffffe403:     mov    %esp,%ebp
+0xffffe405:     sysenter
+0xffffe407:     nop
+0xffffe408:     nop
+0xffffe409:     nop
+0xffffe40a:     nop
+0xffffe40b:     nop
+0xffffe40c:     nop
+0xffffe40d:     nop
+0xffffe40e:     jmp    0xffffe403
+0xffffe410:     pop    %ebp
+0xffffe411:     pop    %edx
+0xffffe412:     pop    %ecx
+0xffffe413:     ret
+
+#64bit function getuid:
+0x00007ffff7ada7c0 &lt;+0&gt;:    mov    $0x66,%eax
+0x00007ffff7ada7c5 &lt;+5&gt;:    syscall 
+0x00007ffff7ada7c7 &lt;+7&gt;:    retq  
+</code></pre>
+<p><strong>Question</strong>：静态编译运行时有vdso么？</p>
+<p><strong>Answer</strong>：有（64/32bit）</p>
+<p><strong>Question</strong>：静态编译时vdso是否随机化？</p>
+<p><strong>Answer</strong>：是（64/32bit）</p>
+<h3 id="ubuntu1604-getuidgettimeofday">调用的路径验证（Ubuntu16.04 以getuid和gettimeofday为例，*代表系统调用号赋值）：</h3>
+<h4 id="32bit">静态32bit：</h4>
+<p>进入vdso，先准备eax</p>
+<pre><code>getuid() in main -&gt; getuid* -&gt; _dl_sysinfo in vdso
+</code></pre>
+<p>gettimeofday基本一致</p>
+<h4 id="64bit">静态64bit：</h4>
+<p>不进入vdso，直接syscall，进入前准备rax</p>
+<pre><code>getuid* -&gt; _getuid
+</code></pre>
+<p>gettimeofday基本一致</p>
+<h4 id="32bit_1">动态32bit：</h4>
+<p>进入vdso，先准备eax</p>
+<pre><code>getuid() in main -&gt; __getuid* -&gt; call %gs:0x10(also _dl_sysinfo in vdso)
+</code></pre>
+<p>而gettimeofday则不同</p>
+<pre><code>gettimeofday() in main -&gt; gettimeofday@plt -&gt; gettimeofday in vdso* -&gt; __kernel_vsyscall im vdso
+</code></pre>
+<h4 id="64bit_1">动态64bit：</h4>
+<p>进入vdso，进入前准备rax</p>
+<pre><code>getuid() in main -&gt; getuid@plt -&gt; getuid@got -&gt; getuid in vdso*
+</code></pre>
+<p>gettimeofday基本相同</p>
+<hr />
+<p>参考：</p>
+<p><a href="http://www.ibm.com/developerworks/cn/linux/kernel/l-k26ncpu/index.html">Linux 2.6 对新型 CPU 快速系统调用的支持</a></p>
+<p><a href="http://lwn.net/Articles/446528/">On vsyscalls and the vDSO</a></p>
+<p><a href="https://lwn.net/Articles/615809/">Implementing virtual system calls</a></p>
+<p>[^1]: http://lwn.net/Articles/446528/ 上"provide fast access to functionality which does not need to run in kernel mode"，但具体实现中实际特权级还是发生了变化，参考http://www.ibm.com/developerworks/cn/linux/kernel/l-k26ncpu/index.html</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="页脚导航">
+        <a href="../2016-09-06-prompt-in-readline/" class="btn btn-neutral float-left" title="在readline中使用颜色prompt导致显示bug"><span class="icon icon-circle-arrow-left"></span> 上一张</a>
+        <a href="../2018-04-11-reserve-register/" class="btn btn-neutral float-right" title="如何在编译器中保留特定寄存器">下一张 <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  用<a href="https://www.mkdocs.org/">MkDocs</a>构建，使用<a href="https://readthedocs.org">Read the Docs</a>提供的<a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>。
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="版本">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../2016-09-06-prompt-in-readline/" style="color: #fcfcfc">&laquo; 上一张</a></span>
+    
+    
+      <span><a href="../2018-04-11-reserve-register/" style="color: #fcfcfc">下一张 &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '../../..';</script>
+    <script src="../../../js/theme_extra.js" defer></script>
+    <script src="../../../js/theme.js" defer></script>
+      <script src="../../../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>

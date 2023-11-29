@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh_Hans_CN" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>2.1 从控制流劫持攻击讲起 - Readm's Blog</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+        <link href="../../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "2.1 \u4ece\u63a7\u5236\u6d41\u52ab\u6301\u653b\u51fb\u8bb2\u8d77";
+        var mkdocs_page_input_path = "1 \u6f2b\u8c08CPU\u5b89\u5168/2 \u8ba1\u7b97\u57df\u5185\u5b89\u5168/2.1 \u4ece\u63a7\u5236\u6d41\u52ab\u6301\u653b\u51fb\u8bb2\u8d77.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <script src="../../../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-ET7BC0JY44"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-ET7BC0JY44');
+      </script>
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> Readm's Blog
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="搜索文档" title="在此输入需要搜索的内容" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航栏">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../About/">About</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">1 漫谈CPU安全</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="#">0 引言</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../0%20%E5%BC%95%E8%A8%80/0%20%E5%BC%95%E8%A8%80/">0 引言</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">1 通用知识</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../1%20%E9%80%9A%E7%94%A8%E7%9F%A5%E8%AF%86/1.1%20%E4%BB%80%E4%B9%88%E6%98%AFCPU/">1.1 什么是CPU</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../1%20%E9%80%9A%E7%94%A8%E7%9F%A5%E8%AF%86/1.2%20CPU%E5%AE%89%E5%85%A8%E5%8C%85%E5%90%AB%E4%BB%80%E4%B9%88/">1.2 CPU安全包含什么</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../1%20%E9%80%9A%E7%94%A8%E7%9F%A5%E8%AF%86/1.3%20%E5%A8%81%E8%83%81%E6%A8%A1%E5%9E%8B%E5%92%8C%E6%94%BB%E5%87%BB%E5%90%91%E9%87%8F/">1.3 威胁模型和攻击向量</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">2 计算域内安全</a>
+    <ul class="current">
+                <li class="toctree-l2 current"><a class="reference internal current" href="./">2.1 从控制流劫持攻击讲起</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#_1">控制流是什么</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_2">最简单的控制流劫持——栈溢出攻击</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#_3">什么是栈</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#_4">接下来，溢出它！</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#_5">回顾一下</a>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2.2%20%E5%8C%BA%E5%88%86%E6%95%B0%E6%8D%AE%E4%B8%8E%E4%BB%A3%E7%A0%81/">2.2 区分数据与代码</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2.3%20%E4%BB%A3%E7%A0%81%E5%A4%8D%E7%94%A8%E6%94%BB%E5%87%BB/">2.3 代码复用攻击</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2.4%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E5%86%85%E5%AE%89%E5%85%A8%E9%98%B2%E5%BE%A1%E6%8A%80%E6%9C%AF/">2.4 计算域内安全防御技术</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">3 计算域间安全</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../3%20%E8%AE%A1%E7%AE%97%E5%9F%9F%E9%97%B4%E5%AE%89%E5%85%A8/3.1%20%E4%BB%8E%E5%8D%95%E7%BA%AF%E7%9A%84%22%E8%AE%A1%E7%AE%97%E6%9C%BA%22%E5%BC%80%E5%A7%8B/">3.1 从单纯的"计算机"开始</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">4 可信安全和故障注入安全</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../4%20%E5%8F%AF%E4%BF%A1%E5%AE%89%E5%85%A8%E5%92%8C%E6%95%85%E9%9A%9C%E6%B3%A8%E5%85%A5%E5%AE%89%E5%85%A8/4.1%20%E4%BB%8E%E9%9B%B6%E5%BC%80%E5%A7%8B%E6%9E%84%E5%BB%BA%E5%8F%AF%E4%BF%A1%E8%AE%A1%E7%AE%97/">4.1 从零开始构建可信计算</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">5 侧信道安全和故障注入攻击</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../5%20%E4%BE%A7%E4%BF%A1%E9%81%93%E5%AE%89%E5%85%A8%E5%92%8C%E6%95%85%E9%9A%9C%E6%B3%A8%E5%85%A5%E6%94%BB%E5%87%BB/5.1%20%E4%BB%8E%22%E4%BE%A7%22%E4%BF%A1%E9%81%93%E8%AE%B2%E8%B5%B7/">从"侧"信道讲起</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../5%20%E4%BE%A7%E4%BF%A1%E9%81%93%E5%AE%89%E5%85%A8%E5%92%8C%E6%95%85%E9%9A%9C%E6%B3%A8%E5%85%A5%E6%94%BB%E5%87%BB/5.2%20%E5%B0%8F%E8%AF%95%E7%89%9B%E5%88%80/">小试牛刀</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">8 杂谈</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../8%20%E6%9D%82%E8%B0%88/8.1%20%E5%A6%82%E4%BD%95%E9%87%8F%E5%8C%96CPU%E5%AE%89%E5%85%A8/">8.1 如何量化CPU安全</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">9 反馈与合作</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../9%20%E5%8F%8D%E9%A6%88%E4%B8%8E%E5%90%88%E4%BD%9C/%E5%8F%8D%E9%A6%88%E5%92%8C%E5%90%88%E4%BD%9C/">反馈与合作</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">2 杂谈</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../2%20%E6%9D%82%E8%B0%88/%E9%9D%A2%E5%90%91%E4%BA%BA%E5%81%9A%E6%8A%80%E6%9C%AF/">以人为本做技术</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">3 Old Blogs (before 2020)</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="#">Others</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/Others/2016-09-06-prompt-in-readline/">在readline中使用颜色prompt导致显示bug</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/Others/2016-09-23-syscall/">Linux的虚拟系统调用加速</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/Others/2018-04-11-reserve-register/">如何在编译器中保留特定寄存器</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/Others/2020-02-03-huffman/">Huffman树的推广</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">Security</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/Security/2016-09-09-aslr-linux/">Linux下ASLR概述</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/Security/2016-11-09-cet-shadow_stacks/">Intel官方手册：CET技术预览-影子栈</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/Security/2020-07-27-zipper/">Zipper Stack工作介绍和反思总结</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="#">Riscv</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/riscv/2018-02-18-riscv-addins/">如何在RISC-V中添加一个指令</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/riscv/2018-02-18-riscv/">RISC-V 技术概览</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/riscv/2018-02-19-rocket-0/">Rocket Core源代码笔记——入门</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/riscv/2018-03-15-riscv-bypass/">Rocket Core源代码笔记——旁路</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/riscv/2018-11-19-rocket-scoreboard/">Rocket Core源代码笔记——Scoreboard</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/riscv/2018-11-20-rocket-abbrs/">Rocket Core源代码笔记——缩写</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../3%20Old%20Blogs%20%28before%202020%29/riscv/2018-11-21-riscv-control-flow/">Rocket Core源代码笔记——控制流</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="移动导航栏">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">Readm's Blog</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" alt="文档"></a> &raquo;</li>
+          <li>1 漫谈CPU安全 &raquo;</li>
+          <li>2 计算域内安全 &raquo;</li><li>2.1 从控制流劫持攻击讲起</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="21">2.1 从控制流劫持攻击讲起</h1>
+<p>CPU特性中属于计算域内的安全的绝大多数问题都是内存安全问题相关，而内存安全的主要防御目标就是内存劫持攻击。内存劫持攻击即<code>Control-Flow Hijacking Attack</code>，而防御技术一般称作<code>CFI(Control-Flow Integrity)</code>。</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Google给出的定义可以供参考：</p>
+<p>Control-flow hijacking attacks allow an attacker to subvert a value that is loaded into the program counter of a running program, typically redirecting execution to his own injected code.</p>
+</div>
+<h3 id="_1">控制流是什么</h3>
+<p>所谓控制流，在CPU中其实就是Program Counter，即指向当前CPU执行代码的指针变化所构成的一个流。控制流劫持攻击，就是PC的值被攻击者控制了，使CPU执行的指令不同于本来程序的变成人员的预期，而按照攻击者的设计执行指令。多数情况下，这种劫持是持久的（攻击者会利用一些方式获得稳定的控制），因此攻击者多数情况下都会获得<code>任意代码执行</code>的能力。</p>
+<p>作为表象，一个程序的功能会完全被攻击者控制。例如本来是一个读入<code>.mp3</code>文件并播放音频的程序，读入了攻击者提供的MP3文件，却弹出一个对话框问你要不要看点刺激的，</p>
+<p><a href="https://www.bilibili.com/video/BV1va411w7aM/?vd_source=6fb8a3b215292b6f556641fdd6e19db5">&gt;&gt;&gt;点击这里&lt;&lt;&lt;</a></p>
+<p>然后你还在犹豫他就给你打开了刺激的视频！<strong>（请勿在工作场合打开，作者关心您的个人声誉。）</strong>。</p>
+<h3 id="_2">最简单的控制流劫持——栈溢出攻击</h3>
+<h4 id="_3">什么是栈</h4>
+<p>todo：这里还可以写得更加简单易懂，待有时间更新一版。</p>
+<p>为了理解为什么会发生如此诡异的事情，我们要理解计算机是如何把一条条指令串联起来的。首先有一个概念叫做：</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><a href="https://zh.wikipedia.org/zh-cn/%E5%86%AF%C2%B7%E8%AF%BA%E4%BC%8A%E6%9B%BC%E7%BB%93%E6%9E%84"><strong>冯·诺伊曼结构（Von Neumann architecture）</strong></a>，是一种将程序指令存储器和数据存储器合并在一起的电脑设计概念结构。</p>
+</div>
+<p>不严格的来说，目前商业CPU基本上都可以看做是符合该结构的，即数据、代码都是等价地被放到内存中。为了解释内存攻击，我们需要更加接近CPU的工作方式，这里引入一个新的，更接近CPU逻辑的比喻更加方便：</p>
+<p>CPU就像一个只会做有限个操作的机器人，而内存就像一个巨大的草稿本。草稿本上每一行都写了数据或者是简单的指令（例如：把第1行和第二行的数据加起来写到第三行）。我们只需要在草稿本上给机器人一个起点（第1页第1行），他就会照着草稿本上写得内容一行接一行执行下去。</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th align="left">类比</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CPU</td>
+<td align="left">只会有限个操作的机器人</td>
+</tr>
+<tr>
+<td>内存</td>
+<td align="left">机器人面前的一个草稿本</td>
+</tr>
+<tr>
+<td>指令</td>
+<td align="left">写在草稿本上，告诉机器人要做什么（这就是为啥它叫指令）</td>
+</tr>
+<tr>
+<td>数据</td>
+<td align="left">要处理的数据也是写在草稿本中数字</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>比如，我们给第1页写上：</p>
+<p><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="306px" height="351px" viewBox="-0.5 -0.5 306 351" content="&lt;mxfile host=&quot;app.diagrams.net&quot; modified=&quot;2023-08-23T14:54:43.070Z&quot; agent=&quot;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36 Edg/116.0.1938.54&quot; etag=&quot;smaTHothSKsZPPK21rbo&quot; version=&quot;21.6.6&quot; type=&quot;github&quot;&gt;&#10;  &lt;diagram name=&quot;第 1 页&quot; id=&quot;qvbTK9ZCu8TfoWqtf9ql&quot;&gt;&#10;    &lt;mxGraphModel dx=&quot;477&quot; dy=&quot;468&quot; grid=&quot;1&quot; gridSize=&quot;10&quot; guides=&quot;1&quot; tooltips=&quot;1&quot; connect=&quot;1&quot; arrows=&quot;1&quot; fold=&quot;1&quot; page=&quot;1&quot; pageScale=&quot;1&quot; pageWidth=&quot;827&quot; pageHeight=&quot;1169&quot; math=&quot;0&quot; shadow=&quot;0&quot;&gt;&#10;      &lt;root&gt;&#10;        &lt;mxCell id=&quot;0&quot; /&gt;&#10;        &lt;mxCell id=&quot;1&quot; parent=&quot;0&quot; /&gt;&#10;        &lt;mxCell id=&quot;K-a2mlNwG-p-3hijeTLC-14&quot; value=&quot;第1页&quot; style=&quot;text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&#10;          &lt;mxGeometry x=&quot;290&quot; y=&quot;170&quot; width=&quot;50&quot; height=&quot;30&quot; as=&quot;geometry&quot; /&gt;&#10;        &lt;/mxCell&gt;&#10;        &lt;mxCell id=&quot;K-a2mlNwG-p-3hijeTLC-15&quot; value=&quot;&quot; style=&quot;childLayout=tableLayout;recursiveResize=0;shadow=0;fillColor=none;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&#10;          &lt;mxGeometry x=&quot;290&quot; y=&quot;200&quot; width=&quot;300&quot; height=&quot;80&quot; as=&quot;geometry&quot; /&gt;&#10;        &lt;/mxCell&gt;&#10;        &lt;mxCell id=&quot;K-a2mlNwG-p-3hijeTLC-16&quot; value=&quot;&quot; style=&quot;shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;dropTarget=0;collapsible=0;recursiveResize=0;expand=0;fontStyle=0;fillColor=none;strokeColor=inherit;&quot; vertex=&quot;1&quot; parent=&quot;K-a2mlNwG-p-3hijeTLC-15&quot;&gt;&#10;          &lt;mxGeometry width=&quot;300&quot; height=&quot;20&quot; as=&quot;geometry&quot; /&gt;&#10;        &lt;/mxCell&gt;&#10;        &lt;mxCell id=&quot;K-a2mlNwG-p-3hijeTLC-17&quot; value=&quot;行数&quot; style=&quot;connectable=0;recursiveResize=0;strokeColor=inherit;fillColor=none;align=center;whiteSpace=wrap;html=1;&quot; vertex=&quot;1&quot; parent=&quot;K-a2mlNwG-p-3hijeTLC-16&quot;&gt;&#10;          &lt;mxGeometry width=&quot;60&quot; height=&quot;20&quot; as=&quot;geometry&quot;&gt;&#10;            &lt;mxRectangle width=&quot;60&quot; height=&quot;20&quot; as=&quot;alternateBounds&quot; /&gt;&#10;          &lt;/mxGeometry&gt;&#10;        &lt;/mxCell&gt;&#10;        &lt;mxCell id=&quot;K-a2mlNwG-p-3hijeTLC-18&quot; value=&quot;内容&quot; style=&quot;connectable=0;recursiveResize=0;strokeColor=inherit;fillColor=none;align=center;whiteSpace=wrap;html=1;&quot; vertex=&quot;1&quot; parent=&quot;K-a2mlNwG-p-3hijeTLC-16&quot;&gt;&#10;          &lt;mxGeometry x=&quot;60&quot; width=&quot;240&quot; height=&quot;20&quot; as=&quot;geometry&quot;&gt;&#10;            &lt;mxRectangle width=&quot;240&quot; height=&quot;20&quot; as=&quot;alternateBounds&quot; /&gt;&#10;          &lt;/mxGeometry&gt;&#10;        &lt;/mxCell&gt;&#10;        &lt;mxCell id=&quot;K-a2mlNwG-p-3hijeTLC-28&quot; value=&quot;&quot; style=&quot;shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;dropTarget=0;collapsible=0;recursiveResize=0;expand=0;fontStyle=0;fillColor=none;strokeColor=inherit;&quot; vertex=&quot;1&quot; parent=&quot;K-a2mlNwG-p-3hijeTLC-15&quot;&gt;&#10;          &lt;mxGeometry y=&quot;20&quot; width=&quot;300&quot; height=&quot;20&quot; as=&quot;geometry&quot; /&gt;&#10;        &lt;/mxCell&gt;&#10;        &lt;mxCell id=&quot;K-a2mlNwG-p-3hijeTLC-29&quot; value=&quot;1&quot; style=&quot;connectable=0;recursiveResize=0;strokeColor=inherit;fillColor=none;align=center;whiteSpace=wrap;html=1;&quot; vertex=&quot;1&quot; parent=&quot;K-a2mlNwG-p-3hijeTLC-28&quot;&gt;&#10;          &lt;mxGeometry width=&quot;60&quot; height=&quot;20&quot; as=&quot;geometry&quot;&gt;&#10;            &lt;mxRectangle width=&quot;60&quot; height=&quot;20&quot; as=&quot;alternateBounds&quot; /&gt;&#10;          &lt;/mxGeometry&gt;&#10;        &lt;/mxCell&gt;&#10;        &lt;mxCell id=&quot;K-a2mlNwG-p-3hijeTLC-30&quot; value=&quot;把第2页的第1行的数字乘以2写到下一行&quot; style=&quot;connectable=0;recursiveResize=0;strokeColor=inherit;fillColor=none;align=left;whiteSpace=wrap;html=1;&quot; vertex=&quot;1&quot; parent=&quot;K-a2mlNwG-p-3hijeTLC-28&quot;&gt;&#10;          &lt;mxGeometry x=&quot;60&quot; width=&quot;240&quot; height=&quot;20&quot; as=&quot;geometry&quot;&gt;&#10;            &lt;mxRectangle width=&quot;240&quot; height=&quot;20&quot; as=&quot;alternateBounds&quot; /&gt;&#10;          &lt;/mxGeometry&gt;&#10;        &lt;/mxCell&gt;&#10;        &lt;mxCell id=&quot;K-a2mlNwG-p-3hijeTLC-20&quot; style=&quot;shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;dropTarget=0;collapsible=0;recursiveResize=0;expand=0;fontStyle=0;fillColor=none;strokeColor=inherit;&quot; vertex=&quot;1&quot; parent=&quot;K-a2mlNwG-p-3hijeTLC-15&quot;&gt;&#10;          &lt;mxGeometry y=&quot;40&quot; width=&quot;300&quot; height=&quot;20&quot; as=&quot;geometry&quot; /&gt;&#10;        &lt;/mxCell&gt;&#10;        &lt;mxCell id=&quot;K-a2mlNwG-p-3hijeTLC-21&quot; value=&quot;2&quot; style=&quot;connectable=0;recursiveResize=0;strokeColor=inherit;fillColor=none;align=center;whiteSpace=wrap;html=1;&quot; vertex=&quot;1&quot; parent=&quot;K-a2mlNwG-p-3hijeTLC-20&quot;&gt;&#10;          &lt;mxGeometry width=&quot;60&quot; height=&quot;20&quot; as=&quot;geometry&quot;&gt;&#10;            &lt;mxRectangle width=&quot;60&quot; height=&quot;20&quot; as=&quot;alternateBounds&quot; /&gt;&#10;          &lt;/mxGeometry&gt;&#10;        &lt;/mxCell&gt;&#10;        &lt;mxCell id=&quot;K-a2mlNwG-p-3hijeTLC-22&quot; value=&quot;把第2页的第2行的数字加上3写到下一行&quot; style=&quot;connectable=0;recursiveResize=0;strokeColor=inherit;fillColor=none;align=left;whiteSpace=wrap;html=1;&quot; vertex=&quot;1&quot; parent=&quot;K-a2mlNwG-p-3hijeTLC-20&quot;&gt;&#10;          &lt;mxGeometry x=&quot;60&quot; width=&quot;240&quot; height=&quot;20&quot; as=&quot;geometry&quot;&gt;&#10;            &lt;mxRectangle width=&quot;240&quot; height=&quot;20&quot; as=&quot;alternateBounds&quot; /&gt;&#10;          &lt;/mxGeometry&gt;&#10;        &lt;/mxCell&gt;&#10;        &lt;mxCell id=&quot;K-a2mlNwG-p-3hijeTLC-24&quot; style=&quot;shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;dropTarget=0;collapsible=0;recursiveResize=0;expand=0;fontStyle=0;fillColor=none;strokeColor=inherit;&quot; vertex=&quot;1&quot; parent=&quot;K-a2mlNwG-p-3hijeTLC-15&quot;&gt;&#10;          &lt;mxGeometry y=&quot;60&quot; width=&quot;300&quot; height=&quot;20&quot; as=&quot;geometry&quot; /&gt;&#10;        &lt;/mxCell&gt;&#10;        &lt;mxCell id=&quot;K-a2mlNwG-p-3hijeTLC-25&quot; value=&quot;3&quot; style=&quot;connectable=0;recursiveResize=0;strokeColor=inherit;fillColor=none;align=center;whiteSpace=wrap;html=1;&quot; vertex=&quot;1&quot; parent=&quot;K-a2mlNwG-p-3hijeTLC-24&quot;&gt;&#10;          &lt;mxGeometry width=&quot;60&quot; height=&quot;20&quot; as=&quot;geometry&quot;&gt;&#10;            &lt;mxRectangle width=&quot;60&quot; height=&quot;20&quot; as=&quot;alternateBounds&quot; /&gt;&#10;          &lt;/mxGeometry&gt;&#10;        &lt;/mxCell&gt;&#10;        &lt;mxCell id=&quot;K-a2mlNwG-p-3hijeTLC-26&quot; value=&quot;……&quot; style=&quot;connectable=0;recursiveResize=0;strokeColor=inherit;fillColor=none;align=left;whiteSpace=wrap;html=1;&quot; vertex=&quot;1&quot; parent=&quot;K-a2mlNwG-p-3hijeTLC-24&quot;&gt;&#10;          &lt;mxGeometry x=&quot;60&quot; width=&quot;240&quot; height=&quot;20&quot; as=&quot;geometry&quot;&gt;&#10;            &lt;mxRectangle width=&quot;240&quot; height=&quot;20&quot; as=&quot;alternateBounds&quot; /&gt;&#10;          &lt;/mxGeometry&gt;&#10;        &lt;/mxCell&gt;&#10;        &lt;mxCell id=&quot;K-a2mlNwG-p-3hijeTLC-33&quot; value=&quot;第2页&quot; style=&quot;text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&#10;          &lt;mxGeometry x=&quot;290&quot; y=&quot;290&quot; width=&quot;50&quot; height=&quot;30&quot; as=&quot;geometry&quot; /&gt;&#10;        &lt;/mxCell&gt;&#10;        &lt;mxCell id=&quot;K-a2mlNwG-p-3hijeTLC-34&quot; value=&quot;&quot; style=&quot;childLayout=tableLayout;recursiveResize=0;shadow=0;fillColor=none;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&#10;          &lt;mxGeometry x=&quot;290&quot; y=&quot;320&quot; width=&quot;300&quot; height=&quot;80&quot; as=&quot;geometry&quot; /&gt;&#10;        &lt;/mxCell&gt;&#10;        &lt;mxCell id=&quot;K-a2mlNwG-p-3hijeTLC-35&quot; value=&quot;&quot; style=&quot;shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;dropTarget=0;collapsible=0;recursiveResize=0;expand=0;fontStyle=0;fillColor=none;strokeColor=inherit;&quot; vertex=&quot;1&quot; parent=&quot;K-a2mlNwG-p-3hijeTLC-34&quot;&gt;&#10;          &lt;mxGeometry width=&quot;300&quot; height=&quot;20&quot; as=&quot;geometry&quot; /&gt;&#10;        &lt;/mxCell&gt;&#10;        &lt;mxCell id=&quot;K-a2mlNwG-p-3hijeTLC-36&quot; value=&quot;行数&quot; style=&quot;connectable=0;recursiveResize=0;strokeColor=inherit;fillColor=none;align=center;whiteSpace=wrap;html=1;&quot; vertex=&quot;1&quot; parent=&quot;K-a2mlNwG-p-3hijeTLC-35&quot;&gt;&#10;          &lt;mxGeometry width=&quot;60&quot; height=&quot;20&quot; as=&quot;geometry&quot;&gt;&#10;            &lt;mxRectangle width=&quot;60&quot; height=&quot;20&quot; as=&quot;alternateBounds&quot; /&gt;&#10;          &lt;/mxGeometry&gt;&#10;        &lt;/mxCell&gt;&#10;        &lt;mxCell id=&quot;K-a2mlNwG-p-3hijeTLC-37&quot; value=&quot;内容&quot; style=&quot;connectable=0;recursiveResize=0;strokeColor=inherit;fillColor=none;align=center;whiteSpace=wrap;html=1;&quot; vertex=&quot;1&quot; parent=&quot;K-a2mlNwG-p-3hijeTLC-35&quot;&gt;&#10;          &lt;mxGeometry x=&quot;60&quot; width=&quot;240&quot; height=&quot;20&quot; as=&quot;geometry&quot;&gt;&#10;            &lt;mxRectangle width=&quot;240&quot; height=&quot;20&quot; as=&quot;alternateBounds&quot; /&gt;&#10;          &lt;/mxGeometry&gt;&#10;        &lt;/mxCell&gt;&#10;        &lt;mxCell id=&quot;K-a2mlNwG-p-3hijeTLC-38&quot; value=&quot;&quot; style=&quot;shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;dropTarget=0;collapsible=0;recursiveResize=0;expand=0;fontStyle=0;fillColor=none;strokeColor=inherit;&quot; vertex=&quot;1&quot; parent=&quot;K-a2mlNwG-p-3hijeTLC-34&quot;&gt;&#10;          &lt;mxGeometry y=&quot;20&quot; width=&quot;300&quot; height=&quot;20&quot; as=&quot;geometry&quot; /&gt;&#10;        &lt;/mxCell&gt;&#10;        &lt;mxCell id=&quot;K-a2mlNwG-p-3hijeTLC-39&quot; value=&quot;1&quot; style=&quot;connectable=0;recursiveResize=0;strokeColor=inherit;fillColor=none;align=center;whiteSpace=wrap;html=1;&quot; vertex=&quot;1&quot; parent=&quot;K-a2mlNwG-p-3hijeTLC-38&quot;&gt;&#10;          &lt;mxGeometry width=&quot;60&quot; height=&quot;20&quot; as=&quot;geometry&quot;&gt;&#10;            &lt;mxRectangle width=&quot;60&quot; height=&quot;20&quot; as=&quot;alternateBounds&quot; /&gt;&#10;          &lt;/mxGeometry&gt;&#10;        &lt;/mxCell&gt;&#10;        &lt;mxCell id=&quot;K-a2mlNwG-p-3hijeTLC-40&quot; value=&quot;5&amp;amp;nbsp; （瓶饮料）&quot; style=&quot;connectable=0;recursiveResize=0;strokeColor=inherit;fillColor=none;align=left;whiteSpace=wrap;html=1;&quot; vertex=&quot;1&quot; parent=&quot;K-a2mlNwG-p-3hijeTLC-38&quot;&gt;&#10;          &lt;mxGeometry x=&quot;60&quot; width=&quot;240&quot; height=&quot;20&quot; as=&quot;geometry&quot;&gt;&#10;            &lt;mxRectangle width=&quot;240&quot; height=&quot;20&quot; as=&quot;alternateBounds&quot; /&gt;&#10;          &lt;/mxGeometry&gt;&#10;        &lt;/mxCell&gt;&#10;        &lt;mxCell id=&quot;K-a2mlNwG-p-3hijeTLC-41&quot; style=&quot;shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;dropTarget=0;collapsible=0;recursiveResize=0;expand=0;fontStyle=0;fillColor=none;strokeColor=inherit;&quot; vertex=&quot;1&quot; parent=&quot;K-a2mlNwG-p-3hijeTLC-34&quot;&gt;&#10;          &lt;mxGeometry y=&quot;40&quot; width=&quot;300&quot; height=&quot;20&quot; as=&quot;geometry&quot; /&gt;&#10;        &lt;/mxCell&gt;&#10;        &lt;mxCell id=&quot;K-a2mlNwG-p-3hijeTLC-42&quot; value=&quot;2&quot; style=&quot;connectable=0;recursiveResize=0;strokeColor=inherit;fillColor=none;align=center;whiteSpace=wrap;html=1;&quot; vertex=&quot;1&quot; parent=&quot;K-a2mlNwG-p-3hijeTLC-41&quot;&gt;&#10;          &lt;mxGeometry width=&quot;60&quot; height=&quot;20&quot; as=&quot;geometry&quot;&gt;&#10;            &lt;mxRectangle width=&quot;60&quot; height=&quot;20&quot; as=&quot;alternateBounds&quot; /&gt;&#10;          &lt;/mxGeometry&gt;&#10;        &lt;/mxCell&gt;&#10;        &lt;mxCell id=&quot;K-a2mlNwG-p-3hijeTLC-43&quot; value=&quot;10（元）&quot; style=&quot;connectable=0;recursiveResize=0;strokeColor=inherit;fillColor=none;align=left;whiteSpace=wrap;html=1;&quot; vertex=&quot;1&quot; parent=&quot;K-a2mlNwG-p-3hijeTLC-41&quot;&gt;&#10;          &lt;mxGeometry x=&quot;60&quot; width=&quot;240&quot; height=&quot;20&quot; as=&quot;geometry&quot;&gt;&#10;            &lt;mxRectangle width=&quot;240&quot; height=&quot;20&quot; as=&quot;alternateBounds&quot; /&gt;&#10;          &lt;/mxGeometry&gt;&#10;        &lt;/mxCell&gt;&#10;        &lt;mxCell id=&quot;K-a2mlNwG-p-3hijeTLC-44&quot; style=&quot;shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;dropTarget=0;collapsible=0;recursiveResize=0;expand=0;fontStyle=0;fillColor=none;strokeColor=inherit;&quot; vertex=&quot;1&quot; parent=&quot;K-a2mlNwG-p-3hijeTLC-34&quot;&gt;&#10;          &lt;mxGeometry y=&quot;60&quot; width=&quot;300&quot; height=&quot;20&quot; as=&quot;geometry&quot; /&gt;&#10;        &lt;/mxCell&gt;&#10;        &lt;mxCell id=&quot;K-a2mlNwG-p-3hijeTLC-45&quot; value=&quot;3&quot; style=&quot;connectable=0;recursiveResize=0;strokeColor=inherit;fillColor=none;align=center;whiteSpace=wrap;html=1;&quot; vertex=&quot;1&quot; parent=&quot;K-a2mlNwG-p-3hijeTLC-44&quot;&gt;&#10;          &lt;mxGeometry width=&quot;60&quot; height=&quot;20&quot; as=&quot;geometry&quot;&gt;&#10;            &lt;mxRectangle width=&quot;60&quot; height=&quot;20&quot; as=&quot;alternateBounds&quot; /&gt;&#10;          &lt;/mxGeometry&gt;&#10;        &lt;/mxCell&gt;&#10;        &lt;mxCell id=&quot;K-a2mlNwG-p-3hijeTLC-46&quot; value=&quot;13（元）&quot; style=&quot;connectable=0;recursiveResize=0;strokeColor=inherit;fillColor=none;align=left;whiteSpace=wrap;html=1;&quot; vertex=&quot;1&quot; parent=&quot;K-a2mlNwG-p-3hijeTLC-44&quot;&gt;&#10;          &lt;mxGeometry x=&quot;60&quot; width=&quot;240&quot; height=&quot;20&quot; as=&quot;geometry&quot;&gt;&#10;            &lt;mxRectangle width=&quot;240&quot; height=&quot;20&quot; as=&quot;alternateBounds&quot; /&gt;&#10;          &lt;/mxGeometry&gt;&#10;        &lt;/mxCell&gt;&#10;        &lt;mxCell id=&quot;K-a2mlNwG-p-3hijeTLC-47&quot; value=&quot;源代码&quot; style=&quot;text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&#10;          &lt;mxGeometry x=&quot;285&quot; y=&quot;50&quot; width=&quot;60&quot; height=&quot;30&quot; as=&quot;geometry&quot; /&gt;&#10;        &lt;/mxCell&gt;&#10;        &lt;mxCell id=&quot;K-a2mlNwG-p-3hijeTLC-48&quot; value=&quot;&quot; style=&quot;childLayout=tableLayout;recursiveResize=0;shadow=0;fillColor=none;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&#10;          &lt;mxGeometry x=&quot;290&quot; y=&quot;80&quot; width=&quot;300&quot; height=&quot;80&quot; as=&quot;geometry&quot; /&gt;&#10;        &lt;/mxCell&gt;&#10;        &lt;mxCell id=&quot;K-a2mlNwG-p-3hijeTLC-49&quot; value=&quot;&quot; style=&quot;shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;dropTarget=0;collapsible=0;recursiveResize=0;expand=0;fontStyle=0;fillColor=none;strokeColor=inherit;&quot; vertex=&quot;1&quot; parent=&quot;K-a2mlNwG-p-3hijeTLC-48&quot;&gt;&#10;          &lt;mxGeometry width=&quot;300&quot; height=&quot;20&quot; as=&quot;geometry&quot; /&gt;&#10;        &lt;/mxCell&gt;&#10;        &lt;mxCell id=&quot;K-a2mlNwG-p-3hijeTLC-50&quot; value=&quot;行数&quot; style=&quot;connectable=0;recursiveResize=0;strokeColor=inherit;fillColor=none;align=center;whiteSpace=wrap;html=1;&quot; vertex=&quot;1&quot; parent=&quot;K-a2mlNwG-p-3hijeTLC-49&quot;&gt;&#10;          &lt;mxGeometry width=&quot;60&quot; height=&quot;20&quot; as=&quot;geometry&quot;&gt;&#10;            &lt;mxRectangle width=&quot;60&quot; height=&quot;20&quot; as=&quot;alternateBounds&quot; /&gt;&#10;          &lt;/mxGeometry&gt;&#10;        &lt;/mxCell&gt;&#10;        &lt;mxCell id=&quot;K-a2mlNwG-p-3hijeTLC-51&quot; value=&quot;内容&quot; style=&quot;connectable=0;recursiveResize=0;strokeColor=inherit;fillColor=none;align=center;whiteSpace=wrap;html=1;&quot; vertex=&quot;1&quot; parent=&quot;K-a2mlNwG-p-3hijeTLC-49&quot;&gt;&#10;          &lt;mxGeometry x=&quot;60&quot; width=&quot;240&quot; height=&quot;20&quot; as=&quot;geometry&quot;&gt;&#10;            &lt;mxRectangle width=&quot;240&quot; height=&quot;20&quot; as=&quot;alternateBounds&quot; /&gt;&#10;          &lt;/mxGeometry&gt;&#10;        &lt;/mxCell&gt;&#10;        &lt;mxCell id=&quot;K-a2mlNwG-p-3hijeTLC-52&quot; value=&quot;&quot; style=&quot;shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;dropTarget=0;collapsible=0;recursiveResize=0;expand=0;fontStyle=0;fillColor=none;strokeColor=inherit;&quot; vertex=&quot;1&quot; parent=&quot;K-a2mlNwG-p-3hijeTLC-48&quot;&gt;&#10;          &lt;mxGeometry y=&quot;20&quot; width=&quot;300&quot; height=&quot;20&quot; as=&quot;geometry&quot; /&gt;&#10;        &lt;/mxCell&gt;&#10;        &lt;mxCell id=&quot;K-a2mlNwG-p-3hijeTLC-53&quot; value=&quot;1&quot; style=&quot;connectable=0;recursiveResize=0;strokeColor=inherit;fillColor=none;align=center;whiteSpace=wrap;html=1;&quot; vertex=&quot;1&quot; parent=&quot;K-a2mlNwG-p-3hijeTLC-52&quot;&gt;&#10;          &lt;mxGeometry width=&quot;60&quot; height=&quot;20&quot; as=&quot;geometry&quot;&gt;&#10;            &lt;mxRectangle width=&quot;60&quot; height=&quot;20&quot; as=&quot;alternateBounds&quot; /&gt;&#10;          &lt;/mxGeometry&gt;&#10;        &lt;/mxCell&gt;&#10;        &lt;mxCell id=&quot;K-a2mlNwG-p-3hijeTLC-54&quot; value=&quot;拿到饮料瓶数乘以单价2&quot; style=&quot;connectable=0;recursiveResize=0;strokeColor=inherit;fillColor=none;align=left;whiteSpace=wrap;html=1;&quot; vertex=&quot;1&quot; parent=&quot;K-a2mlNwG-p-3hijeTLC-52&quot;&gt;&#10;          &lt;mxGeometry x=&quot;60&quot; width=&quot;240&quot; height=&quot;20&quot; as=&quot;geometry&quot;&gt;&#10;            &lt;mxRectangle width=&quot;240&quot; height=&quot;20&quot; as=&quot;alternateBounds&quot; /&gt;&#10;          &lt;/mxGeometry&gt;&#10;        &lt;/mxCell&gt;&#10;        &lt;mxCell id=&quot;K-a2mlNwG-p-3hijeTLC-55&quot; style=&quot;shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;dropTarget=0;collapsible=0;recursiveResize=0;expand=0;fontStyle=0;fillColor=none;strokeColor=inherit;&quot; vertex=&quot;1&quot; parent=&quot;K-a2mlNwG-p-3hijeTLC-48&quot;&gt;&#10;          &lt;mxGeometry y=&quot;40&quot; width=&quot;300&quot; height=&quot;20&quot; as=&quot;geometry&quot; /&gt;&#10;        &lt;/mxCell&gt;&#10;        &lt;mxCell id=&quot;K-a2mlNwG-p-3hijeTLC-56&quot; value=&quot;2&quot; style=&quot;connectable=0;recursiveResize=0;strokeColor=inherit;fillColor=none;align=center;whiteSpace=wrap;html=1;&quot; vertex=&quot;1&quot; parent=&quot;K-a2mlNwG-p-3hijeTLC-55&quot;&gt;&#10;          &lt;mxGeometry width=&quot;60&quot; height=&quot;20&quot; as=&quot;geometry&quot;&gt;&#10;            &lt;mxRectangle width=&quot;60&quot; height=&quot;20&quot; as=&quot;alternateBounds&quot; /&gt;&#10;          &lt;/mxGeometry&gt;&#10;        &lt;/mxCell&gt;&#10;        &lt;mxCell id=&quot;K-a2mlNwG-p-3hijeTLC-57&quot; value=&quot;把单价加上配送费3元&quot; style=&quot;connectable=0;recursiveResize=0;strokeColor=inherit;fillColor=none;align=left;whiteSpace=wrap;html=1;&quot; vertex=&quot;1&quot; parent=&quot;K-a2mlNwG-p-3hijeTLC-55&quot;&gt;&#10;          &lt;mxGeometry x=&quot;60&quot; width=&quot;240&quot; height=&quot;20&quot; as=&quot;geometry&quot;&gt;&#10;            &lt;mxRectangle width=&quot;240&quot; height=&quot;20&quot; as=&quot;alternateBounds&quot; /&gt;&#10;          &lt;/mxGeometry&gt;&#10;        &lt;/mxCell&gt;&#10;        &lt;mxCell id=&quot;K-a2mlNwG-p-3hijeTLC-58&quot; style=&quot;shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;dropTarget=0;collapsible=0;recursiveResize=0;expand=0;fontStyle=0;fillColor=none;strokeColor=inherit;&quot; vertex=&quot;1&quot; parent=&quot;K-a2mlNwG-p-3hijeTLC-48&quot;&gt;&#10;          &lt;mxGeometry y=&quot;60&quot; width=&quot;300&quot; height=&quot;20&quot; as=&quot;geometry&quot; /&gt;&#10;        &lt;/mxCell&gt;&#10;        &lt;mxCell id=&quot;K-a2mlNwG-p-3hijeTLC-59&quot; value=&quot;3&quot; style=&quot;connectable=0;recursiveResize=0;strokeColor=inherit;fillColor=none;align=center;whiteSpace=wrap;html=1;&quot; vertex=&quot;1&quot; parent=&quot;K-a2mlNwG-p-3hijeTLC-58&quot;&gt;&#10;          &lt;mxGeometry width=&quot;60&quot; height=&quot;20&quot; as=&quot;geometry&quot;&gt;&#10;            &lt;mxRectangle width=&quot;60&quot; height=&quot;20&quot; as=&quot;alternateBounds&quot; /&gt;&#10;          &lt;/mxGeometry&gt;&#10;        &lt;/mxCell&gt;&#10;        &lt;mxCell id=&quot;K-a2mlNwG-p-3hijeTLC-60&quot; value=&quot;……&quot; style=&quot;connectable=0;recursiveResize=0;strokeColor=inherit;fillColor=none;align=left;whiteSpace=wrap;html=1;&quot; vertex=&quot;1&quot; parent=&quot;K-a2mlNwG-p-3hijeTLC-58&quot;&gt;&#10;          &lt;mxGeometry x=&quot;60&quot; width=&quot;240&quot; height=&quot;20&quot; as=&quot;geometry&quot;&gt;&#10;            &lt;mxRectangle width=&quot;240&quot; height=&quot;20&quot; as=&quot;alternateBounds&quot; /&gt;&#10;          &lt;/mxGeometry&gt;&#10;        &lt;/mxCell&gt;&#10;      &lt;/root&gt;&#10;    &lt;/mxGraphModel&gt;&#10;  &lt;/diagram&gt;&#10;&lt;/mxfile&gt;&#10;" resource="https://app.diagrams.net/#HReadm%2Freadm.github.io%2Fmain%2Fdocs%2F1%20%E6%BC%AB%E8%B0%88CPU%E5%AE%89%E5%85%A8%2Fstatic%2F%E7%AC%AC1%E9%A1%B5.svg"><defs/><g><rect x="5" y="120" width="50" height="30" fill="none" stroke="none" pointer-events="all"/><g transform="translate(-0.5 -0.5)"><switch><foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 1px; height: 1px; padding-top: 135px; margin-left: 30px;"><div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: center;"><div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: all; white-space: nowrap;">第1页</div></div></div></foreignObject><text x="30" y="139" fill="rgb(0, 0, 0)" font-family="Helvetica" font-size="12px" text-anchor="middle">第1页</text></switch></g><rect x="5" y="150" width="300" height="80" fill="none" stroke="rgb(0, 0, 0)" pointer-events="all"/><rect x="5" y="150" width="60" height="20" fill="none" stroke="rgb(0, 0, 0)" pointer-events="none"/><g transform="translate(-0.5 -0.5)"><switch><foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 58px; height: 1px; padding-top: 160px; margin-left: 6px;"><div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: center;"><div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">行数</div></div></div></foreignObject><text x="35" y="164" fill="rgb(0, 0, 0)" font-family="Helvetica" font-size="12px" text-anchor="middle">行数</text></switch></g><rect x="65" y="150" width="240" height="20" fill="none" stroke="rgb(0, 0, 0)" pointer-events="none"/><g transform="translate(-0.5 -0.5)"><switch><foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 238px; height: 1px; padding-top: 160px; margin-left: 66px;"><div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: center;"><div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">内容</div></div></div></foreignObject><text x="185" y="164" fill="rgb(0, 0, 0)" font-family="Helvetica" font-size="12px" text-anchor="middle">内容</text></switch></g><rect x="5" y="170" width="60" height="20" fill="none" stroke="rgb(0, 0, 0)" pointer-events="none"/><g transform="translate(-0.5 -0.5)"><switch><foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 58px; height: 1px; padding-top: 180px; margin-left: 6px;"><div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: center;"><div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">1</div></div></div></foreignObject><text x="35" y="184" fill="rgb(0, 0, 0)" font-family="Helvetica" font-size="12px" text-anchor="middle">1</text></switch></g><rect x="65" y="170" width="240" height="20" fill="none" stroke="rgb(0, 0, 0)" pointer-events="none"/><g transform="translate(-0.5 -0.5)"><switch><foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe flex-start; width: 238px; height: 1px; padding-top: 180px; margin-left: 67px;"><div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: left;"><div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">把第2页的第1行的数字乘以2写到下一行</div></div></div></foreignObject><text x="67" y="184" fill="rgb(0, 0, 0)" font-family="Helvetica" font-size="12px">把第2页的第1行的数字乘以2写到下一行</text></switch></g><rect x="5" y="190" width="60" height="20" fill="none" stroke="rgb(0, 0, 0)" pointer-events="none"/><g transform="translate(-0.5 -0.5)"><switch><foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 58px; height: 1px; padding-top: 200px; margin-left: 6px;"><div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: center;"><div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">2</div></div></div></foreignObject><text x="35" y="204" fill="rgb(0, 0, 0)" font-family="Helvetica" font-size="12px" text-anchor="middle">2</text></switch></g><rect x="65" y="190" width="240" height="20" fill="none" stroke="rgb(0, 0, 0)" pointer-events="none"/><g transform="translate(-0.5 -0.5)"><switch><foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe flex-start; width: 238px; height: 1px; padding-top: 200px; margin-left: 67px;"><div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: left;"><div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">把第2页的第2行的数字加上3写到下一行</div></div></div></foreignObject><text x="67" y="204" fill="rgb(0, 0, 0)" font-family="Helvetica" font-size="12px">把第2页的第2行的数字加上3写到下一行</text></switch></g><rect x="5" y="210" width="60" height="20" fill="none" stroke="rgb(0, 0, 0)" pointer-events="none"/><g transform="translate(-0.5 -0.5)"><switch><foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 58px; height: 1px; padding-top: 220px; margin-left: 6px;"><div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: center;"><div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">3</div></div></div></foreignObject><text x="35" y="224" fill="rgb(0, 0, 0)" font-family="Helvetica" font-size="12px" text-anchor="middle">3</text></switch></g><rect x="65" y="210" width="240" height="20" fill="none" stroke="rgb(0, 0, 0)" pointer-events="none"/><g transform="translate(-0.5 -0.5)"><switch><foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe flex-start; width: 238px; height: 1px; padding-top: 220px; margin-left: 67px;"><div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: left;"><div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">……</div></div></div></foreignObject><text x="67" y="224" fill="rgb(0, 0, 0)" font-family="Helvetica" font-size="12px">……</text></switch></g><g transform="translate(-0.5 -0.5)"><switch><foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 1px; height: 1px; padding-top: 255px; margin-left: 30px;"><div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: center;"><div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: nowrap;">第2页</div></div></div></foreignObject><text x="30" y="259" fill="rgb(0, 0, 0)" font-family="Helvetica" font-size="12px" text-anchor="middle">第2页</text></switch></g><rect x="5" y="270" width="300" height="80" fill="none" stroke="rgb(0, 0, 0)" pointer-events="none"/><rect x="5" y="270" width="60" height="20" fill="none" stroke="rgb(0, 0, 0)" pointer-events="none"/><g transform="translate(-0.5 -0.5)"><switch><foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 58px; height: 1px; padding-top: 280px; margin-left: 6px;"><div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: center;"><div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">行数</div></div></div></foreignObject><text x="35" y="284" fill="rgb(0, 0, 0)" font-family="Helvetica" font-size="12px" text-anchor="middle">行数</text></switch></g><rect x="65" y="270" width="240" height="20" fill="none" stroke="rgb(0, 0, 0)" pointer-events="none"/><g transform="translate(-0.5 -0.5)"><switch><foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 238px; height: 1px; padding-top: 280px; margin-left: 66px;"><div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: center;"><div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">内容</div></div></div></foreignObject><text x="185" y="284" fill="rgb(0, 0, 0)" font-family="Helvetica" font-size="12px" text-anchor="middle">内容</text></switch></g><rect x="5" y="290" width="60" height="20" fill="none" stroke="rgb(0, 0, 0)" pointer-events="none"/><g transform="translate(-0.5 -0.5)"><switch><foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 58px; height: 1px; padding-top: 300px; margin-left: 6px;"><div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: center;"><div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">1</div></div></div></foreignObject><text x="35" y="304" fill="rgb(0, 0, 0)" font-family="Helvetica" font-size="12px" text-anchor="middle">1</text></switch></g><rect x="65" y="290" width="240" height="20" fill="none" stroke="rgb(0, 0, 0)" pointer-events="none"/><g transform="translate(-0.5 -0.5)"><switch><foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe flex-start; width: 238px; height: 1px; padding-top: 300px; margin-left: 67px;"><div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: left;"><div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">5  （瓶饮料）</div></div></div></foreignObject><text x="67" y="304" fill="rgb(0, 0, 0)" font-family="Helvetica" font-size="12px">5  （瓶饮料）</text></switch></g><rect x="5" y="310" width="60" height="20" fill="none" stroke="rgb(0, 0, 0)" pointer-events="none"/><g transform="translate(-0.5 -0.5)"><switch><foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 58px; height: 1px; padding-top: 320px; margin-left: 6px;"><div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: center;"><div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">2</div></div></div></foreignObject><text x="35" y="324" fill="rgb(0, 0, 0)" font-family="Helvetica" font-size="12px" text-anchor="middle">2</text></switch></g><rect x="65" y="310" width="240" height="20" fill="none" stroke="rgb(0, 0, 0)" pointer-events="none"/><g transform="translate(-0.5 -0.5)"><switch><foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe flex-start; width: 238px; height: 1px; padding-top: 320px; margin-left: 67px;"><div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: left;"><div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">10（元）</div></div></div></foreignObject><text x="67" y="324" fill="rgb(0, 0, 0)" font-family="Helvetica" font-size="12px">10（元）</text></switch></g><rect x="5" y="330" width="60" height="20" fill="none" stroke="rgb(0, 0, 0)" pointer-events="none"/><g transform="translate(-0.5 -0.5)"><switch><foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 58px; height: 1px; padding-top: 340px; margin-left: 6px;"><div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: center;"><div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">3</div></div></div></foreignObject><text x="35" y="344" fill="rgb(0, 0, 0)" font-family="Helvetica" font-size="12px" text-anchor="middle">3</text></switch></g><rect x="65" y="330" width="240" height="20" fill="none" stroke="rgb(0, 0, 0)" pointer-events="none"/><g transform="translate(-0.5 -0.5)"><switch><foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe flex-start; width: 238px; height: 1px; padding-top: 340px; margin-left: 67px;"><div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: left;"><div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">13（元）</div></div></div></foreignObject><text x="67" y="344" fill="rgb(0, 0, 0)" font-family="Helvetica" font-size="12px">13（元）</text></switch></g><g transform="translate(-0.5 -0.5)"><switch><foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 1px; height: 1px; padding-top: 15px; margin-left: 30px;"><div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: center;"><div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: nowrap;">源代码</div></div></div></foreignObject><text x="30" y="19" fill="rgb(0, 0, 0)" font-family="Helvetica" font-size="12px" text-anchor="middle">源代码</text></switch></g><rect x="5" y="30" width="300" height="80" fill="none" stroke="rgb(0, 0, 0)" pointer-events="none"/><rect x="5" y="30" width="60" height="20" fill="none" stroke="rgb(0, 0, 0)" pointer-events="none"/><g transform="translate(-0.5 -0.5)"><switch><foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 58px; height: 1px; padding-top: 40px; margin-left: 6px;"><div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: center;"><div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">行数</div></div></div></foreignObject><text x="35" y="44" fill="rgb(0, 0, 0)" font-family="Helvetica" font-size="12px" text-anchor="middle">行数</text></switch></g><rect x="65" y="30" width="240" height="20" fill="none" stroke="rgb(0, 0, 0)" pointer-events="none"/><g transform="translate(-0.5 -0.5)"><switch><foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 238px; height: 1px; padding-top: 40px; margin-left: 66px;"><div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: center;"><div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">内容</div></div></div></foreignObject><text x="185" y="44" fill="rgb(0, 0, 0)" font-family="Helvetica" font-size="12px" text-anchor="middle">内容</text></switch></g><rect x="5" y="50" width="60" height="20" fill="none" stroke="rgb(0, 0, 0)" pointer-events="none"/><g transform="translate(-0.5 -0.5)"><switch><foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 58px; height: 1px; padding-top: 60px; margin-left: 6px;"><div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: center;"><div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">1</div></div></div></foreignObject><text x="35" y="64" fill="rgb(0, 0, 0)" font-family="Helvetica" font-size="12px" text-anchor="middle">1</text></switch></g><rect x="65" y="50" width="240" height="20" fill="none" stroke="rgb(0, 0, 0)" pointer-events="none"/><g transform="translate(-0.5 -0.5)"><switch><foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe flex-start; width: 238px; height: 1px; padding-top: 60px; margin-left: 67px;"><div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: left;"><div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">拿到饮料瓶数乘以单价2</div></div></div></foreignObject><text x="67" y="64" fill="rgb(0, 0, 0)" font-family="Helvetica" font-size="12px">拿到饮料瓶数乘以单价2</text></switch></g><rect x="5" y="70" width="60" height="20" fill="none" stroke="rgb(0, 0, 0)" pointer-events="none"/><g transform="translate(-0.5 -0.5)"><switch><foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 58px; height: 1px; padding-top: 80px; margin-left: 6px;"><div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: center;"><div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">2</div></div></div></foreignObject><text x="35" y="84" fill="rgb(0, 0, 0)" font-family="Helvetica" font-size="12px" text-anchor="middle">2</text></switch></g><rect x="65" y="70" width="240" height="20" fill="none" stroke="rgb(0, 0, 0)" pointer-events="none"/><g transform="translate(-0.5 -0.5)"><switch><foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe flex-start; width: 238px; height: 1px; padding-top: 80px; margin-left: 67px;"><div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: left;"><div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">把单价加上配送费3元</div></div></div></foreignObject><text x="67" y="84" fill="rgb(0, 0, 0)" font-family="Helvetica" font-size="12px">把单价加上配送费3元</text></switch></g><rect x="5" y="90" width="60" height="20" fill="none" stroke="rgb(0, 0, 0)" pointer-events="none"/><g transform="translate(-0.5 -0.5)"><switch><foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 58px; height: 1px; padding-top: 100px; margin-left: 6px;"><div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: center;"><div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">3</div></div></div></foreignObject><text x="35" y="104" fill="rgb(0, 0, 0)" font-family="Helvetica" font-size="12px" text-anchor="middle">3</text></switch></g><rect x="65" y="90" width="240" height="20" fill="none" stroke="rgb(0, 0, 0)" pointer-events="none"/><g transform="translate(-0.5 -0.5)"><switch><foreignObject pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility" style="overflow: visible; text-align: left;"><div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe flex-start; width: 238px; height: 1px; padding-top: 100px; margin-left: 67px;"><div data-drawio-colors="color: rgb(0, 0, 0); " style="box-sizing: border-box; font-size: 0px; text-align: left;"><div style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; pointer-events: none; white-space: normal; overflow-wrap: normal;">……</div></div></div></foreignObject><text x="67" y="104" fill="rgb(0, 0, 0)" font-family="Helvetica" font-size="12px">……</text></switch></g></g><switch><g requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"/><a transform="translate(0,-5)" xlink:href="https://www.drawio.com/doc/faq/svg-export-text-problems" target="_blank"><text text-anchor="middle" font-size="10px" x="50%" y="100%">Text is not SVG - cannot display</text></a></switch></svg></p>
+<p>这样我们就有了一个把第2页第1行的数字乘以2加上3的程序了！例如，它计算了我们买n瓶单价2块钱的饮料加上邮费（3块钱）的总价！我们可以把饮料的单价放在第2页第1行，运行完程序，我们会得到新的第2页，在第三行我们可以看到结果。当然，他一般不会记录单位。</p>
+<div class="admonition 第2页">
+<p class="admonition-title">第2页</p>
+<table>
+<thead>
+<tr>
+<th>行数</th>
+<th>指令/数据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>5 （瓶饮料）</td>
+</tr>
+<tr>
+<td>2</td>
+<td>10 （元）</td>
+</tr>
+<tr>
+<td>3</td>
+<td>13 （元）</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>后面我们省略这一页。</p>
+<p>很明显每次软件要CPU做的事情肯定是不一样的，如果机器人只会一行接一行的运行计算指令，那么它是无法完成复杂的功能的，因此我们需要<strong>跳转指令/分支指令</strong>：比如“做到这里，接下来去第1页第1行接着工作。”有时候还会判断一下条件，即<strong>条件跳转/条件分支</strong>：比如“如果上一行是0，那么去第1页第1行，否则继续下一行。”这样，我们就可以把<em>将一个数字乘以2加上3</em>的功能（称为一个<strong>函数</strong>）写到第1页第1行了，每次想使用它都写上跳转过去。</p>
+<div class="admonition comment">
+<p class="admonition-title">Comment</p>
+<p>其实，有了计算和跳转功能，就可以构造<a href="https://zh.wikipedia.org/wiki/%E5%9B%BE%E7%81%B5%E6%9C%BA">图灵机</a>，满足<a href="https://zh.wikipedia.org/wiki/%E5%9C%96%E9%9D%88%E5%AE%8C%E5%82%99%E6%80%A7">图灵完备</a>了。我们所有无论多么高大上的编程模型，本质上其实都是此类计算和跳转完成的，我们这里不展开了。</p>
+</div>
+<p>但是问题又来了，<strong>当机器人执行完第1页的第2行，结束了，接下来到哪里去呢？</strong>因为我们可能在第三页跳转过来执行，还可能在第四页跳过来执行，一般情况下，执行完这个函数，我们应该回到跳转过来的地方继续执行*。机器人自己是没有多少记忆力的，所以我们会在这个函数的最后一行写上“滚回去继续”，就是<strong>返回指令</strong>。而这个返回指令，其实也是一种特殊的跳转，它只是要求在跳转到这个函数之前（比如跳转指令第4页第3行），把本来下一行的位置（也就是<strong>返回地址</strong>，比如第4页第4行）记到另一块草稿纸上，比如写到第5页。这种需要记录当前位置的跳转指令也叫做<strong>调用（函数的）指令</strong>。那么现在变成了：</p>
+<div class="admonition 第4页">
+<p class="admonition-title">第4页</p>
+<p><strong>程序：结算订单</strong></p>
+<table>
+<thead>
+<tr>
+<th>行数</th>
+<th>指令/数据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>从这里开始执行</strong></td>
+</tr>
+<tr>
+<td>2</td>
+<td>把本子交给用户，让用户把买的饮料数量写在第2页第1行</td>
+</tr>
+<tr>
+<td>3</td>
+<td>调用指令（函数位于第1页第1行），同时把“第4页第4行”写到第5页最新的空行</td>
+</tr>
+<tr>
+<td>4</td>
+<td>打印小票……</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="admonition 第1页">
+<p class="admonition-title">第1页</p>
+<p><strong>函数：计算饮料总价</strong></p>
+<table>
+<thead>
+<tr>
+<th>行数</th>
+<th>指令/数据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>把第2页的第1行的数字乘以2写到第2页第3行</td>
+</tr>
+<tr>
+<td>2</td>
+<td>把第2页第3行的数字加上3写到第2页第4行</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>返回指令（去第五页找到最新的地址跳回去）</strong></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="admonition 第5页">
+<p class="admonition-title">第5页</p>
+<table>
+<thead>
+<tr>
+<th>行数</th>
+<th>指令/数据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>第4页第4行  &lt;--最新的空行 调用指令写的，返回指令读</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>这样，从第4页第3行调用指令跳转过来时候，就会回到第4页第4行继续。用完第5页第1行他会标记这行为空。</p>
+<div class="admonition comment">
+<p class="admonition-title">Comment</p>
+<p>* 这里为什么应该回到跳转过来的地方继续，或许要理解函数概念才比较直观。我们希望函数是一个重复功能，每次调用之后就代替写一段固定指令。所以我们希望他结束了就简简单单继续（比如去打印小票）就好了。但是这个似乎很显然的点，也并不是永远成立，有时候其他编程范式就不会回到调用点继续。</p>
+</div>
+<p>当然，一个函数里我们肯定希望还能更进一步调用其他函数来增加复杂度。例如，我们可能乘以2这个操作中的2，可能是每瓶饮料的单价，其实它会浮动，可能下个月是2.5了。我们就会把这个功能单独写成函数，以便情况下也需要这个单价。代码变成了：</p>
+<div class="admonition 第1页">
+<p class="admonition-title">第1页</p>
+<p><strong>函数：计算饮料总价</strong></p>
+<table>
+<thead>
+<tr>
+<th>行数</th>
+<th>指令/数据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>调用指令 （<strong>查询今天饮料单价</strong>）把下一行“第1页第2行”加到第五页上最新空行上</td>
+</tr>
+<tr>
+<td>2</td>
+<td>拿到上一行的结果，把第2页的第1行的数字乘以它写到第2页第3行</td>
+</tr>
+<tr>
+<td>3</td>
+<td>把第2页第3行的数字加上3写到第2页第4行</td>
+</tr>
+<tr>
+<td>4</td>
+<td>返回指令（去第五页找到最下面的地址跳过去）</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="admonition 第5页">
+<p class="admonition-title">第5页</p>
+<table>
+<thead>
+<tr>
+<th>行数</th>
+<th>指令/数据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>第4页第4行  &lt;--<strong>结算订单</strong> 调用 <strong>计算饮料总价</strong>时记的</td>
+</tr>
+<tr>
+<td>2</td>
+<td>第1页第2行  &lt;--<strong>计算饮料总价</strong> 调用 <strong>查询今天饮料单价</strong>时记的</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>这样，你会发现其实第5页被我们记了两次，第一个是从其他位置调用第1页函数记的来源地址，第二个是我们新加的第1行写下的（第1页第2行），所以我们之前写得是“找到第五页最新的地址”。当“查询今天饮料单价的函数”返回时，他就会找到最新的地址返回，来保证程序流程还是正确的。我们发现，这个第五页其实是根据调用的层次变长的，而每次返回都用的是最新写入的。所以这是一个经典的<strong>“栈结构”</strong>——后入先出。这也就是我们为什么的内存布局中需要一个栈空间（Stack）。</p>
+<p><img alt="进程内存空间布局" src="../../static/%E8%BF%9B%E7%A8%8B%E5%86%85%E5%AD%98%E5%B8%83%E5%B1%80.png" /></p>
+<p>实际上，在内存里，栈是向低地址延伸的。所以我们把第5页稍微反过来画：</p>
+<div class="admonition 第5页">
+<p class="admonition-title">第5页</p>
+<table>
+<thead>
+<tr>
+<th>行数</th>
+<th>指令/数据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>……</td>
+<td>……</td>
+</tr>
+<tr>
+<td>99</td>
+<td>第1页第2行  &lt;--<strong>计算饮料总价</strong> 调用 <strong>查询今天饮料单价</strong>时记的</td>
+</tr>
+<tr>
+<td>100</td>
+<td>第4页第4行  &lt;--<strong>结算订单</strong> 调用 <strong>计算饮料总价</strong>时记的</td>
+</tr>
+<tr>
+<td>……</td>
+<td>……</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>更进一步，我们发现，调用函数的时候总是需要一些参数（否则我们可以直接得到固定值了）和中间变量。我们其实可以把这些参数值和函数的计算结果也放到栈上。这样有两个好处：</p>
+<ul>
+<li>出现递归/嵌套调用的时候（比如有个函数叫做<strong>添加一层包装</strong>，那它可能对一些有过包装的东西再包装一次），参数不会都写在一处互相打架</li>
+<li>不同的CPU同时使用同一份代码时参数不会写在一处打架，他们都有自己的栈</li>
+</ul>
+<p>那么现在函数是这样的：</p>
+<div class="admonition 第4页">
+<p class="admonition-title">第4页</p>
+<p><strong>程序：结算订单</strong></p>
+<table>
+<thead>
+<tr>
+<th>行数</th>
+<th>指令/数据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>从这里开始执行</strong></td>
+</tr>
+<tr>
+<td>2</td>
+<td>把本子交给用户，让用户把买的饮料数量写在第5页最新一行</td>
+</tr>
+<tr>
+<td>3</td>
+<td>调用指令（函数位于第1页第1行），同时把“第4页第4行”写到第5页最新的空行</td>
+</tr>
+<tr>
+<td>4</td>
+<td>打印小票……</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="admonition 第1页">
+<p class="admonition-title">第1页</p>
+<p><strong>函数：计算饮料总价</strong></p>
+<table>
+<thead>
+<tr>
+<th>行数</th>
+<th>指令/数据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>把第五页上第二新的数据拿出来（最新的是返回地址），作为输入a</td>
+</tr>
+<tr>
+<td>2</td>
+<td>调用指令 （<strong>查询今天饮料单价</strong>）把下一行“第1页第2行”加到第五页上最新空行上</td>
+</tr>
+<tr>
+<td>3</td>
+<td>从第五页上最新的数据拿到上一行的结果b，a乘以它写到第五页上最新的一行（叫做c）</td>
+</tr>
+<tr>
+<td>4</td>
+<td>把c加上3，写到第五页上当时拿到输入a的地方</td>
+</tr>
+<tr>
+<td>5</td>
+<td>把临时弄乱的第5页的内容恢复回去，只剩来源地址</td>
+</tr>
+<tr>
+<td>6</td>
+<td>返回指令（去第五页找到最下面的地址跳过去）</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>某一时刻，第五页是这样的</p>
+<div class="admonition 第5页">
+<p class="admonition-title">第5页</p>
+<table>
+<thead>
+<tr>
+<th>行数</th>
+<th>指令/数据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>……</td>
+<td>……</td>
+</tr>
+<tr>
+<td>97</td>
+<td>临时数据c</td>
+</tr>
+<tr>
+<td>98</td>
+<td>调用<strong>查询今天饮料单价</strong>返回的结果 b （这里省略了调用这个函数的过程）</td>
+</tr>
+<tr>
+<td>99</td>
+<td>第4页第4行  &lt;-- <strong>结算订单</strong> 调用 <strong>计算饮料总价</strong>时记的</td>
+</tr>
+<tr>
+<td>100</td>
+<td>用户输入的购买饮料数量 也就是a 然后被<strong>计算饮料总价</strong> 改为他的结果</td>
+</tr>
+<tr>
+<td>……</td>
+<td>……</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>这里<em>最新的数据</em>需要一个指针来指向，当最新的数据被拿走时，它会指向次新的数据。我们不在深入，感兴趣的同学可以去查看函数调用中栈的原理。</p>
+<p>我们可以看到，第五页现在不仅仅包括了函数调用的地址，还包括函数输入输出的数据，因为我们还有一个<em>最新的数据的指针</em>，一般它也会被放到函数的栈结构上。我们发现，栈是根据每个函数对应的，我们把每个函数对应的栈的那一小段就叫做栈帧。</p>
+<p><a href="https://en.wikipedia.org/wiki/Call_stack">Wikipedia对调用栈的解释</a>中的图可以看到每个栈帧的内容（DrawLine是一个函数名），我们已经都介绍过了。</p>
+<ul>
+<li>Stack Pointer: 指向最新的数据</li>
+<li>Frame Pointer：用于区分不同的栈帧起始点</li>
+<li>Return Address：返回地址，即从哪里调用的该函数</li>
+<li>Parameters：函数用的参数</li>
+<li>Locals：函数的中间变量</li>
+</ul>
+<p><img alt="Call Stack" src="../../static/Call%20Stack%20layout.png" /></p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th align="left">类比</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>栈</td>
+<td align="left">用来记录当前函数调用相关信息的临时页</td>
+</tr>
+<tr>
+<td>栈帧</td>
+<td align="left">每层调用需要的栈的部分，一个栈帧对应一个函数的临时数据</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>当然，这些内容的排布是有设计空间的，并且CPU内也有临时的存储空间——寄存器来传递参数。这些约定俗称的规则就称为<code>调用惯例</code>，也是ABI(Application Binary Interface)的一部分。</p>
+<div class="admonition comment">
+<p class="admonition-title">Comment</p>
+<p>这种讲述方式我希望读者有这样一个收益：<em>我能够从设计的角度，为什么需要设计这样的结构</em>。而不是<em>我知道这个结构是可以work的</em>。这个区别会很大程度上影响对问题认知的程度。</p>
+</div>
+<h4 id="_4">接下来，溢出它！</h4>
+<p>我们看到，函数内部的一些临时变量也在这个运行时栈中。假设我们做一个小小的变化：我们让第一页的函数自己找用户直接写入用户姓名和饮料数量。这时候，CPU看到这样一个指令：</p>
+<div class="admonition 第1页">
+<p class="admonition-title">第1页</p>
+<p><strong>函数：计算饮料总价</strong></p>
+<table>
+<thead>
+<tr>
+<th>行数</th>
+<th>指令/数据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>翻到第五页上的我的某个临时数据的位置，让用户把买的数量和名字写进去</strong></td>
+</tr>
+<tr>
+<td>2</td>
+<td>调用指令 （<strong>查询今天饮料单价</strong>）把下一行“第1页第2行”加到第五页上最新空行上</td>
+</tr>
+<tr>
+<td>3</td>
+<td>从第五页上最新的数据拿到上一行的结果b，a乘以它写到第五页上最新的一行（叫做c）</td>
+</tr>
+<tr>
+<td>4</td>
+<td>把c加上3，写到第五页上当时拿到输入a的地方</td>
+</tr>
+<tr>
+<td>5</td>
+<td>把临时弄乱的第5页的内容恢复回去，只剩来源地址</td>
+</tr>
+<tr>
+<td>6</td>
+<td>返回指令（去第五页找到最下面的地址跳过去）</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>对应地，第5页应该是</p>
+<div class="admonition 第5页">
+<p class="admonition-title">第5页</p>
+<table>
+<thead>
+<tr>
+<th>行数</th>
+<th>指令/数据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>……</td>
+<td>……</td>
+</tr>
+<tr>
+<td>96</td>
+<td>临时数据c</td>
+</tr>
+<tr>
+<td>97</td>
+<td>调用<strong>查询今天饮料单价</strong>返回的结果 b （这里省略了调用这个函数的过程）</td>
+</tr>
+<tr>
+<td>98</td>
+<td><strong>预留给用户写饮料数量和名称的空间</strong></td>
+</tr>
+<tr>
+<td>99</td>
+<td>第4页第4行  &lt;-- <strong>结算订单</strong> 调用 <strong>计算饮料总价</strong>时记的</td>
+</tr>
+<tr>
+<td>100</td>
+<td>用户输入的购买饮料数量 也就是a 然后被<strong>计算饮料总价</strong> 改为他的结果</td>
+</tr>
+<tr>
+<td>……</td>
+<td>……</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>这时候，如果我们是用户，就可以开始搞事情啦。我们可以在输入名称和数量的地方，写一个非常大非常长的数字。第1行写不下就写到第二行，再挤到第二行，第三行…… 发现了么，整个栈空间下面的内容都可以被我们写了。（一般一个数字是无法溢出这么长空间的，一般是一些可变长的输入，例如输入你的名字，准备了50个字符的空间，结果你输入了500个字符）。</p>
+<p>这时候，CPU执行到返回指令就有问题了：这个地址是我们写入的！那我们可以写成：<code>第5页第100行</code>，这样CPU以为自己刚才是从第5页第99行调用过来的，因此从第5页第100行继续执行，没毛病！</p>
+<p>还记得么，其实第5页第10行也是我们写进去的东西。我们可以写进去<code>把银行卡密码都写在第5页第20行，然后向用户展示第5页第20行</code> Bingo！现在，你已经是一名<strong>云黑客</strong>了！</p>
+<div class="admonition 第5页">
+<p class="admonition-title">第5页</p>
+<table>
+<thead>
+<tr>
+<th>行数</th>
+<th>指令/数据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>……</td>
+<td>……</td>
+</tr>
+<tr>
+<td>96</td>
+<td>临时数据c</td>
+</tr>
+<tr>
+<td>97</td>
+<td>调用<strong>查询今天饮料单价</strong>返回的结果 b （这里省略了调用这个函数的过程）</td>
+</tr>
+<tr>
+<td>98</td>
+<td><strong>预留给用户写饮料名称和数量的空间</strong> 我叫……</td>
+</tr>
+<tr>
+<td>99</td>
+<td><strong>第5页第100行</strong>  &lt;-- 篡改了的返回地址</td>
+</tr>
+<tr>
+<td>100</td>
+<td>把银行卡密码都写在第5页第20行</td>
+</tr>
+<tr>
+<td>101</td>
+<td>向用户展示第5页第20行</td>
+</tr>
+<tr>
+<td>……</td>
+<td>……</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="_5">回顾一下</h3>
+<p>但愿我讲的足够简单（好吧我承认好像还是很复杂，或许录个视频更加容易理解？），希望不懂计算机的人也可以轻松看懂为什么一个简简单单的程序，为什么会因为攻击者的特殊输入，做出完全不符合预期的行为。</p>
+<p>那我们回顾一下，为什么会产生这样的问题呢？</p>
+<ul>
+<li>首先，因为<strong>数据</strong>、<strong>代码</strong>和<strong>返回的地址</strong>都是等同地放在内存中的。因此攻击者写入的数据一样能够被当成代码，或者返回地址来使用。这是冯诺依曼结构决定的。</li>
+<li>其次，用户的输入变量没有被检查是否分配的空间（草稿本上的行数）是足够的。</li>
+<li>再次，用户的输入变量超出范围后，能够直接覆盖到<strong>返回地址</strong>，而返回地址可以指向任意的页数和行号。</li>
+</ul>
+<p>在后文中，我们逐步的分析这些原因，并且看看是否能够修复这种问题，并且探讨哪些问题是根本问题，哪些问题只是表象。</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="页脚导航">
+        <a href="../../1%20%E9%80%9A%E7%94%A8%E7%9F%A5%E8%AF%86/1.3%20%E5%A8%81%E8%83%81%E6%A8%A1%E5%9E%8B%E5%92%8C%E6%94%BB%E5%87%BB%E5%90%91%E9%87%8F/" class="btn btn-neutral float-left" title="1.3 威胁模型和攻击向量"><span class="icon icon-circle-arrow-left"></span> 上一张</a>
+        <a href="../2.2%20%E5%8C%BA%E5%88%86%E6%95%B0%E6%8D%AE%E4%B8%8E%E4%BB%A3%E7%A0%81/" class="btn btn-neutral float-right" title="2.2 区分数据与代码">下一张 <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  用<a href="https://www.mkdocs.org/">MkDocs</a>构建，使用<a href="https://readthedocs.org">Read the Docs</a>提供的<a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>。
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="版本">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../../1%20%E9%80%9A%E7%94%A8%E7%9F%A5%E8%AF%86/1.3%20%E5%A8%81%E8%83%81%E6%A8%A1%E5%9E%8B%E5%92%8C%E6%94%BB%E5%87%BB%E5%90%91%E9%87%8F/" style="color: #fcfcfc">&laquo; 上一张</a></span>
+    
+    
+      <span><a href="../2.2%20%E5%8C%BA%E5%88%86%E6%95%B0%E6%8D%AE%E4%B8%8E%E4%BB%A3%E7%A0%81/" style="color: #fcfcfc">下一张 &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '../../..';</script>
+    <script src="../../../js/theme_extra.js" defer></script>
+    <script src="../../../js/theme.js" defer></script>
+      <script src="../../../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>
